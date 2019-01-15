@@ -20,7 +20,7 @@ minOrfLength=25  #minimum number of amino acids per ORF
 #original codons functions by natasha.sernova obtained from Biostars:
 #https://www.biostars.org/p/229060/
 
-def codons(seq,id):
+def codons(seq,id,countOrfs):
 
         stops = ["TAA","TGA","TAG"]    
         lst1 = [] #List for the start codons
@@ -46,7 +46,7 @@ def codons(seq,id):
 
             start += 1 #promotes the starting position.
             counter += 1 #promotes the counter
-        countOrfs=1    
+
         #for each reading frame go through the start site and extract and output possible proteins
         for frame in range (3):
                 if len(lst1[frame])>0 and len(lst2[frame])>0:  #at least one start and stop codon per frame must exist
@@ -68,7 +68,8 @@ def codons(seq,id):
                                 currentStop=currentStop+1
                                 
                         elif lst1[frame][currentStart] > lst2[frame][currentStop]:
-                                currentStop=currentStop+1         
+                                currentStop=currentStop+1 
+        :return(countOrfs)        
 
 #translation code taken from https://www.geeksforgeeks.org/dna-protein-python-3/
 def translate(seq): 
@@ -108,12 +109,13 @@ else :
 
         file=open(sys.argv[1],'r')
 
+        countOrfs=1
         faiter= (x[1] for x in groupby(file, lambda line: line[0] == ">"))
         for header in faiter:
                 #join all sequences to one
                 header=header.next()[0:].strip()
                 seq = "".join(s.strip() for s in faiter.next())
-                codons(seq.upper(), header )
+                countOrfs=codons(seq.upper(), header ,countOrfs)
                 
         
 
