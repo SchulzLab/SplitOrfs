@@ -20,8 +20,8 @@ makeblastdb -in ${proteins} -out ${output}/ProteinDatabase -dbtype prot
 blastp -query ${output}/OrfProteins.fa -db ${output}/ProteinDatabase -out ${output}/OrfsAlign.txt -outfmt "6 std" -evalue 0.001 -num_threads 20
 
 #sort the blastp output by the second column to group by proteins
-srt -k2 ${output}/OrfsAlign.txt > ${output}/OrfsAlign_sorted.txt
-rm ${output}/OrfsAlign.txt
+sort -k2 ${output}/OrfsAlign.txt > ${output}/OrfsAlign_sorted.txt
+#rm ${output}/OrfsAlign.txt
 
 #run the detection script to parse
 python DetectValidNMDOrfMatches.py ${output}/OrfsAlign_sorted.txt > ${output}/ValidProteinORFPairs.txt

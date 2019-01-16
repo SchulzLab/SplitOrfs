@@ -69,7 +69,7 @@ def codons(seq,id,countOrfs):
                                 
                         elif lst1[frame][currentStart] > lst2[frame][currentStop]:
                                 currentStop=currentStop+1 
-        :return(countOrfs)        
+        return(countOrfs)        
 
 #translation code taken from https://www.geeksforgeeks.org/dna-protein-python-3/
 def translate(seq): 
