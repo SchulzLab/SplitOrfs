@@ -11,6 +11,7 @@ from itertools import groupby
 
 minOrfNum=2  #minimum number ORFs that need to align to a peptide sequence
 identityCutoff = 90  #minimum percent identity of the protein alignment to be considered as a valid ORF-peptide match
+minLength = 40 #minimum number of amino acids for an ORF to be considered
 colon=":"
 
 
@@ -18,7 +19,7 @@ def checkAlignments(Alignments,gene, target) :
     if Alignments :
                     for match in Alignments:
                         entries = Alignments[match]
-                        if len(entries) > 1: #found more than one ORF 
+                        if len(entries) >= minOrfNum: #found more than one ORF 
                             #compute max and min sequence identity values
                             MinSeqIdent=float(100)
                             MaxSeqIdent=float(0)
@@ -64,7 +65,7 @@ else :
                 lastElem = elems[1]
                 Alignments={}
 
-            if float(elems[2]) >= identityCutoff and (orf[0] == target[0]):
+            if float(elems[2]) >= identityCutoff and (int(orf[4]) - int(orf[3])+1)  >= 3 * minLength and (orf[0] == target[0]):
                 dummy=orf[2:5]
                 dummy.append(str(elems[2]))
                 if(orf[1] in Alignments) :  #transcript has at least one matching orf
