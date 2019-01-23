@@ -1,9 +1,6 @@
 
 #!/usr/bin/python
-#This script parses the out file of DetectValidNMDOrfMatches.py to select the one best transcript-protein pair
-#for further analysis. For each transcript it uses the some of ORF-protein lengths to determine, which protein
-#would show the largest coverage. For this the file needs to be sorted according to column 3 (see runNMDOrf.sh):
-# THis file is named ValidProteinORFPairs_sortCol3.txt in the NMDOrf workflow
+#This script parses the out file of getLongestMatches.py to add overlap with functional annotations
 
 import sys
 import re
@@ -42,7 +39,7 @@ else :
             annotPercentage = round(float(countAnnot)/float(elems[3]),3)
             print "\t".join([line,",".join(listAnnot),str(countAnnot),str(annotPercentage)])
 
-            
+#Example line in UniqueProteinORFPairs.txt         
 #geneID  targetTransID   OrfTransID  NumOrfs OrfIDs  OrfPos  OrfLengths  OrfSeqIdents    MinSeqIdent MaxSeqIdent protAlignPos    protCoverage
 #ENSMUSG00000000561  ENSMUST00000010278  ENSMUST00000000572  4   ORF-115,ORF-102,ORF-497,ORF-321 88396-88542,80071-80241,132564-132839,120917-121237 147,171,276,321 100.0,100.0,100.0,93.243    93.243  100.0   240-286,108-159,361-451,280-353 264
 

@@ -12,9 +12,17 @@ Both blast and bedtools should be added to the unix PATH variable.
 
 ## Usage 
 
-The runNMDOrf.sh is the masterscript that executes the workflow for generation of transcripts, alignment to proteins as well as overlap with functional annotation if desired. The script calls a number of python scripts or executable as part of the workflow. Exact information can be found in runNMDOrf.sh.
+The runNMDOrf.sh is the masterscript that executes the workflow for generation of transcripts, alignment to proteins as well as overlap with functional annotation if desired. The script calls a number of python scripts or executable as part of the workflow. Exact information can be found in runNMDOrf.sh. The default function call is:
 
 ```javascript
 runNMDOrf.sh outputFolder proteins.fa transcripts.fa annotation.bed
+
+```
+
+If you want to execute the analysis without computing overlap to annotations use:
+
+
+```javascript
+runNMDOrf.sh outputFolder proteins.fa transcripts.fa
 
 ```
