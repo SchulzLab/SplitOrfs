@@ -4,8 +4,12 @@
 output=$1
 proteins=$2
 transcripts=$3
+annotations=$4
 
-echo "run the NMDOrf script on: " $output $proteins $transcripts
+if len(sys.argv) < 3:
+        print "usage getLongestOrfMatches.py ValidProteinORFPairs_sortCol3.txt"
+else :
+echo "run the NMDOrf script on: " $output $proteins $transcripts $annotations
 
 #create output folder if it does not exist
 mkdir -p $output
@@ -25,5 +29,10 @@ sort -k2 ${output}/OrfsAlign.txt > ${output}/OrfsAlign_sorted.txt
 
 #run the detection script to parse
 python DetectValidNMDOrfMatches.py ${output}/OrfsAlign_sorted.txt > ${output}/ValidProteinORFPairs.txt
+
+#sort file per Orf-transcript ID on column 3. Here it is important to omit the head while sorting
+cat ${output}/ValidProteinORFPairs.txt | awk 'NR<2{print ;next}{print | "sort -k3"}'  > ValidProteinORFPairs_sortCol3.txt
+
+python getLongestOrfMatches.py ValidProteinORFPairs_sortCol3.txt > 
 
 

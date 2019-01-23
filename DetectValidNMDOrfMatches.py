@@ -28,6 +28,8 @@ def checkAlignments(Alignments,gene, target) :
                             orfPos =[]
                             orfSeqIdents = []
                             orfLengths = []
+                            pAlignPos = []
+                            totalAlignLength=0
                             for i in range(0,len(entries)) :    
                                 orfIDs.append(entries[i].split(":")[0])
                                 orfPos.append("-".join([entries[i].split(":")[1],entries[i].split(":")[2]]))
@@ -38,9 +40,11 @@ def checkAlignments(Alignments,gene, target) :
                                     MaxSeqIdent = float(currentSeqIdent)
                                 orfSeqIdents.append(str(currentSeqIdent))
                                 orfLengths.append(str(int(entries[i].split(":")[2])-int(entries[i].split(":")[1])+1))
+                                pAlignPos.append(entries[i].split(":")[5])
+                                totalAlignLength = totalAlignLength + int(entries[i].split(":")[4])
 
 
-                            print "\t".join([gene,target,match,str(len(entries)),",".join(orfIDs),",".join(orfPos),",".join(orfLengths),",".join(orfSeqIdents),str(MinSeqIdent),str(MaxSeqIdent)])
+                            print "\t".join([gene,target,match,str(len(entries)),",".join(orfIDs),",".join(orfPos),",".join(orfLengths),",".join(orfSeqIdents),str(MinSeqIdent),str(MaxSeqIdent),",".join(pAlignPos),str(totalAlignLength)])
 
 #read in fasta file
 if len(sys.argv) < 2:
@@ -52,7 +56,7 @@ else :
         lastElem="dummy" #variable that remembers the last transcript in use (all alignments are sorted by traget sequence)
         Alignments = {}  #hash map that stores all valid alignments for one target sequence
         #print header for result file
-        print "\t".join(["geneID", "targetTransID" ,"OrfTransID", "NumOrfs","OrfIDs","OrfPos","OrfLengths","OrfSeqIdents","MinSeqIdent","MaxSeqIdent"])
+        print "\t".join(["geneID", "targetTransID" ,"OrfTransID", "NumOrfs","OrfIDs","OrfPos","OrfLengths","OrfSeqIdents","MinSeqIdent","MaxSeqIdent","protAlignPos","protCoverage"])
 
         for line in file :
             elems = line.split("\t")
@@ -68,6 +72,8 @@ else :
             if float(elems[2]) >= identityCutoff and (int(orf[4]) - int(orf[3])+1)  >= 3 * minLength and (orf[0] == target[0]):
                 dummy=orf[2:5]
                 dummy.append(str(elems[2]))
+                dummy.append(str(int(elems[9])-int(elems[8])+1))
+                dummy.append("-".join([elems[8],elems[9]]))
                 if(orf[1] in Alignments) :  #transcript has at least one matching orf
                     Alignments[orf[1]].append(colon.join(dummy))
                 else :
@@ -78,3 +84,4 @@ else :
 
 
 #ENSMUSG00000031748|ENSMUST00000127900:ORF-189:67160:67360  ENSMUSG00000000001|ENSMUST00000000001   
+#qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore
