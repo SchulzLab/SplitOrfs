@@ -3,9 +3,9 @@ A workflow to computationally detect transcripts that could generate several dis
 
 ## Dependencies
 
-1) NCBI blast installation. The workflow uses a local NCBI Blast installation. It uses the makedb and blastp executables. The latest version can be downloaded [here](https://blast.ncbi.nlm.nih.gov/Blast.cgi).
-2) bedtools2 if the predicted protein regions should be overlapped with functional annotations.
-3) The python scipts are written for Python 2.7
+1) *NCBI blast installation*. The workflow uses a local NCBI Blast installation. It uses the makedb and blastp executables. The latest version can be downloaded [here](https://blast.ncbi.nlm.nih.gov/Blast.cgi).
+2) *bedtools2* (version v2.27.1 or higher). Only needed if the predicted protein regions should be overlapped with functional annotations.
+3) *Python 2.7* All python scripts are written for Python 2.7.
 
 Both blast and bedtools should be added to the unix PATH variable.
 
