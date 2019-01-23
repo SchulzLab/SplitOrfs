@@ -7,7 +7,7 @@ import re
 
 #read in fasta file
 if len(sys.argv) < 3:
-        print "usage python addFunctionalOverlap.py UniqueProteinORFPairs.txt intersectPFAM.txt"
+        print "usage python addFunctionalOverlap.py UniqueProteinORFPairs.txt intersectResults.txt"
 else :
 
         ORFPairs=open(sys.argv[1],'r')
@@ -35,7 +35,8 @@ else :
                 if j in annotations :
                     countAnnot = countAnnot +1
                     listAnnot.append(annotations[j])
-
+            if not listAnnot :
+                listAnnot[0] = "NA"
             annotPercentage = round(float(countAnnot)/float(elems[3]),3)
             print "\t".join([line,",".join(listAnnot),str(countAnnot),str(annotPercentage)])
 
