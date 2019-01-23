@@ -10,7 +10,7 @@ import sys
 
 #read in fasta file
 if len(sys.argv) < 2:
-        print "usage get LongestOrfMatches.py ValidProteinORFPairs_sortCol3.txt"
+        print "usage getLongestOrfMatches.py ValidProteinORFPairs_sortCol3.txt"
 else :
 
         file=open(sys.argv[1],'r')
