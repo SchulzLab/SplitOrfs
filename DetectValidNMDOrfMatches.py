@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #This script parses a blastp output file and checks for NMD transcripts that have more than one ORF matching to the
-#peptide sequence of one
+#peptide sequence of one transcripts of the same gene
 #the script expects that the blastpoutput file was sorted on the database 
 #sequence column (2nd column), e.g. via srt -k2 align.out
 
@@ -53,7 +53,7 @@ else :
 
         file=open(sys.argv[1],'r')
 
-        lastElem="dummy" #variable that remembers the last transcript in use (all alignments are sorted by traget sequence)
+        lastElem="dummy|dummy" #variable that remembers the last transcript in use (all alignments are sorted by traget sequence)
         Alignments = {}  #hash map that stores all valid alignments for one target sequence
         #print header for result file
         print "\t".join(["geneID", "targetTransID" ,"OrfTransID", "NumOrfs","OrfIDs","OrfPos","OrfLengths","OrfSeqIdents","MinSeqIdent","MaxSeqIdent","protAlignPos","protCoverage"])
@@ -61,10 +61,11 @@ else :
         for line in file :
             elems = line.split("\t")
             orf=re.split("[|:]+",elems[0])
-            target=elems[1].split("|")
+            
             if lastElem != elems[1] :
                 #found a new target transcript
                 #go through all transcripts that have matches to the target
+                target=lastElem.split("|")
                 checkAlignments(Alignments,target[0],target[1])
                 lastElem = elems[1]
                 Alignments={}
@@ -78,10 +79,11 @@ else :
                     Alignments[orf[1]].append(colon.join(dummy))
                 else :
                     Alignments[orf[1]] = [colon.join(dummy)]
-            
+            target=elems[1].split("|")
         checkAlignments(Alignments,target[0],target[1])
 
 
 
-#ENSMUSG00000031748|ENSMUST00000127900:ORF-189:67160:67360  ENSMUSG00000000001|ENSMUST00000000001   
+#ENSMUSG00000031748|ENSMUST00000127900:ORF-189:67160:67360  ENSMUSG00000000001|ENSMUST00000000001  
+# 83.87   31      4       1       102     132     143     172     2e-06   51.2 
 #qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore
