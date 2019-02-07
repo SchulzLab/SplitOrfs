@@ -1,6 +1,6 @@
 #!/usr/bin/python
-#This script parses a blastp output file and checks for NMD transcripts that have more than one ORF matching to the
-#peptide sequence of one transcripts of the same gene
+#This script parses a blastp output file and checks for transcripts that have more than one ORF matching to the
+#peptide sequence of one transcript of the same gene
 #the script expects that the blastpoutput file was sorted on the database 
 #sequence column (2nd column), e.g. via srt -k2 align.out
 
@@ -12,6 +12,7 @@ from itertools import groupby
 minOrfNum=2  #minimum number ORFs that need to align to a peptide sequence
 identityCutoff = 90  #minimum percent identity of the protein alignment to be considered as a valid ORF-peptide match
 minLength = 40 #minimum number of amino acids for an ORF to be considered
+minAlignmentRate = 0.5 # rate of positions to be covered by the alignment of an ORF (to remove spurious local protein alignments)
 colon=":"
 
 
@@ -70,10 +71,13 @@ else :
                 lastElem = elems[1]
                 Alignments={}
 
-            if float(elems[2]) >= identityCutoff and (int(orf[4]) - int(orf[3])+1)  >= 3 * minLength and (orf[0] == target[0]):
+                orfLenNuc=int(orf[4]) - int(orf[3])+1
+                orfLenProt=orfLenNuc*3
+                alignLength=int(elems[9])-int(elems[8])+1
+            if float(elems[2]) >= identityCutoff and orfLenProt >=  minLength and (orf[0] == target[0]) and (alignLength/orfLenProt >= minAlignmentRate):
                 dummy=orf[2:5]
                 dummy.append(str(elems[2]))
-                dummy.append(str(int(elems[9])-int(elems[8])+1))
+                dummy.append(str(alignLength))
                 dummy.append("-".join([elems[8],elems[9]]))
                 if(orf[1] in Alignments) :  #transcript has at least one matching orf
                     Alignments[orf[1]].append(colon.join(dummy))

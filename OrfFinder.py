@@ -19,6 +19,7 @@ minOrfLength=25  #minimum number of amino acids per ORF
 
 #original codons functions by natasha.sernova obtained from Biostars:
 #https://www.biostars.org/p/229060/
+#code has been modified
 
 def codons(seq,id,countOrfs):
 
@@ -89,8 +90,8 @@ def translate(seq):
         'GGA':'G', 'GGC':'G', 'GGG':'G', 'GGT':'G', 
         'TCA':'S', 'TCC':'S', 'TCG':'S', 'TCT':'S', 
         'TTC':'F', 'TTT':'F', 'TTA':'L', 'TTG':'L', 
-        'TAC':'Y', 'TAT':'Y', 'TAA':'_', 'TAG':'_', 
-        'TGC':'C', 'TGT':'C', 'TGA':'_', 'TGG':'W', 
+        'TAC':'Y', 'TAT':'Y', 'TAA':'*', 'TAG':'*', 
+        'TGC':'C', 'TGT':'C', 'TGA':'*', 'TGG':'W', 
     } 
     protein ="" 
     if len(seq)%3 == 0 and not re.search("N",seq): #if seq contains N discard it
