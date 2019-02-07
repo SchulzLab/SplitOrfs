@@ -72,9 +72,9 @@ else :
                 Alignments={}
 
                 orfLenNuc=int(orf[4]) - int(orf[3])+1
-                orfLenProt=orfLenNuc*3
+                orfLenProt=orfLenNuc/3
                 alignLength=int(elems[9])-int(elems[8])+1
-            if float(elems[2]) >= identityCutoff and orfLenProt >=  minLength and (orf[0] == target[0]) and (alignLength/orfLenProt >= minAlignmentRate):
+            if float(elems[2]) >= identityCutoff and orfLenProt >= minLength and (orf[0] == target[0]) and (alignLength/orfLenProt >= minAlignmentRate):
                 dummy=orf[2:5]
                 dummy.append(str(elems[2]))
                 dummy.append(str(alignLength))
