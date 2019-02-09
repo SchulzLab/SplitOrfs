@@ -49,7 +49,7 @@ def checkAlignments(Alignments,gene, target) :
 
 #read in fasta file
 if len(sys.argv) < 2:
-        print "usage DetectValidNMDOrfMatches.py BlastpAlign.out"
+        print "usage DetectValidSplitOrfMatches.py BlastpAlign.out"
 else :
 
         file=open(sys.argv[1],'r')
