@@ -1,4 +1,4 @@
-#This script is the master script to execute the NMDOrf workflow.
+#This script is the master script to execute the SplitOrfs workflow.
 
 
 output=$1
@@ -9,10 +9,10 @@ annotations=$4
 
 
 if [[ ($# -ne 3 && $# -ne 4) ]]; then
-        echo "usage runNMDOrf.sh outputFolder proteins.fa transcripts.fa annotation.bed"
+        echo "usage runSplitOrfs.sh outputFolder proteins.fa transcripts.fa annotation.bed"
     	echo  "output Folder will be created if not existing"
 else 
-	echo "run the NMDOrf script on: " $output $proteins $transcripts $annotations
+	echo "run the SplitOrfs script on: " $output $proteins $transcripts $annotations
 
 	#create output folder if it does not exist
 	mkdir -p $output
@@ -31,7 +31,7 @@ else
 	#rm ${output}/OrfsAlign.txt
 
 	#run the detection script to parse
-	python DetectValidNMDOrfMatches.py ${output}/OrfsAlign_sorted.txt > ${output}/ValidProteinORFPairs.txt
+	python DetectValidSplitOrfMatches.py ${output}/OrfsAlign_sorted.txt > ${output}/ValidProteinORFPairs.txt
 
 	#sort file per Orf-transcript ID on column 3. Here it is important to omit the head while sorting
 	cat ${output}/ValidProteinORFPairs.txt | awk 'NR<2{print ;next}{print | "sort -k3"}'  > ${output}/ValidProteinORFPairs_sortCol3.txt
