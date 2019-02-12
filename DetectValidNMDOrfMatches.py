@@ -11,7 +11,7 @@ from itertools import groupby
 
 minOrfNum=2  #minimum number ORFs that need to align to a peptide sequence
 identityCutoff = 90  #minimum percent identity of the protein alignment to be considered as a valid ORF-peptide match
-minLength = 40 #minimum number of amino acids for an ORF to be considered
+minLength = 50 #minimum number of amino acids for an ORF to be considered
 minAlignmentRate = 0.5 # rate of positions to be covered by the alignment of an ORF (to remove spurious local protein alignments)
 colon=":"
 

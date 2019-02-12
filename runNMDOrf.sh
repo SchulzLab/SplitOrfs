@@ -27,7 +27,7 @@ else
 	#blastp -query ${output}/OrfProteins.fa -db ${output}/ProteinDatabase -out ${output}/OrfsAlign.txt -outfmt "6 std" -evalue 0.001 -num_threads 20
 
 	#sort the blastp output by the second column to group by proteins
-	sort -k2 ${output}/OrfsAlign.txt > ${output}/OrfsAlign_sorted.txt
+	#sort -k2 ${output}/OrfsAlign.txt > ${output}/OrfsAlign_sorted.txt
 	#rm ${output}/OrfsAlign.txt
 
 	#run the detection script to parse

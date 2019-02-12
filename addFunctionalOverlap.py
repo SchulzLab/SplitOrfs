@@ -36,7 +36,7 @@ else :
                     countAnnot = countAnnot +1
                     listAnnot.append(annotations[j])
             if not listAnnot :
-                listAnnot[0] = "NA"
+                listAnnot.append("NA")
             annotPercentage = round(float(countAnnot)/float(elems[3]),3)
             print "\t".join([line,",".join(listAnnot),str(countAnnot),str(annotPercentage)])
 
