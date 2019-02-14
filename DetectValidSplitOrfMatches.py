@@ -49,7 +49,7 @@ def checkAlignments(Alignments,gene, target) :
 
 #read in fasta file
 if len(sys.argv) < 2:
-        print "usage DetectValidNMDOrfMatches.py BlastpAlign.out"
+        print "usage DetectValidSplitOrfMatches.py BlastpAlign.out"
 else :
 
         file=open(sys.argv[1],'r')
@@ -72,17 +72,20 @@ else :
                 Alignments={}
 
                 orfLenNuc=int(orf[4]) - int(orf[3])+1
-                orfLenProt=orfLenNuc/3
-                alignLength=int(elems[9])-int(elems[8])+1
-            if float(elems[2]) >= identityCutoff and orfLenProt >= minLength and (orf[0] == target[0]) and (alignLength/orfLenProt >= minAlignmentRate):
+                orfLenProt=orfLenNuc/float(3)
+                alignLength=float(int(elems[9])-int(elems[8])+1)
+            if float(elems[2]) >= identityCutoff and orfLenProt >= minLength and (orf[0] == target[0]) and ((alignLength/orfLenProt) >= minAlignmentRate):
                 dummy=orf[2:5]
                 dummy.append(str(elems[2]))
-                dummy.append(str(alignLength))
+                dummy.append(str(int(alignLength)))
                 dummy.append("-".join([elems[8],elems[9]]))
                 if(orf[1] in Alignments) :  #transcript has at least one matching orf
                     Alignments[orf[1]].append(colon.join(dummy))
                 else :
                     Alignments[orf[1]] = [colon.join(dummy)]
+	    #else:
+		#if float(elems[2]) >= identityCutoff and (orf[0] == target[0]):
+		#	print "orfLenProt=",orfLenProt,"alignLength",alignLength,"alignLength/orfLenProt",str(round(float(alignLength/orfLenProt),3))
             target=elems[1].split("|")
         checkAlignments(Alignments,target[0],target[1])
 
