@@ -30,14 +30,14 @@ The format looks similar to above:
 
 The only difference is that the second ID is the transcript ID that represents the transcript to be subjected to ORF generation.
 
-If desired an additional annotation bed file can be supplied for checking with overlap of known protein domains. It has the following format (header onyl shown for illustration):
+If desired an additional **annotation bed file** can be supplied for checking with overlap of known protein domains. It has the following format (header onyl shown for illustration):
 
 |Protein/Transcript ID   | Start   | End   | Identifier  |
 |---|---|---|---|
 |ENST00000308027| 21  |    274  |   PF07690|
 |ENST00000574588|104 |    414   |  PF00038|
 
-The first column denotes the Protein or Transcript ID representing the protein (here the Ensembl human transcipt ID of the protein). The second and third denote the start and end of the domain annotation in the protein. The last column is the identifier of the domain type (here PFAM domain). The annotation of human and mouse proteins can be found in the folder annotations in the repo.
+The first column denotes the Protein or Transcript ID representing the protein (here the Ensembl human transcipt ID of the protein). The second and third denote the start and end of the domain annotation in the protein. The last column is the identifier of the domain type (here PFAM domain). The annotation of human and mouse proteins can be found in the folder *annotations* in the repo.
 
 The default function call is:
 
@@ -63,6 +63,7 @@ The pipeline produces a number of files as output, some are just intermediates n
 4. UniqueProteinORFPairs_annotated.txt - an extended file from above, when you also ad an annotation bed file to the pipeline.
 
 The different columns of the UniqueProteinORFPairs_annotated.txt file are explained below.
+
 |column name|explanation|
 |---|---|
 |**geneID** | Gene identifier|
@@ -78,7 +79,7 @@ The different columns of the UniqueProteinORFPairs_annotated.txt file are explai
 |**protAlignPos** | Alignment start-stop positions of the ORF in the protein.|
 |**ProtCoverage** | Number of amino acid positions covered of the original protein by alignment from all ORFs.|
 |**ORF-DomainAnnot** | Identifiers of annotations that overlap with an ORF (comma separated list in order of the ORFs). NA means *not available*, when no ORF annotation existed.|
-|**NumOrfAnnot** | number of ORFs that have at least one overlapping annotation.|
+|**NumOrfAnnot** | Number of ORFs that have at least one overlapping annotation.|
 |**AnnotPercent** | The ratio of ORFs that have at least one overlapping annotation.|
 
 The last 3 columns only exist, when an annotation.bed file is supplied to runSplitORFs.sh
