@@ -30,7 +30,7 @@ The format looks similar to above:
 
 The only difference is that the second ID is the transcript ID that represents the transcript to be subjected to ORF generation.
 
-If desired an additional **annotation bed file** can be supplied for checking with overlap of known protein domains. It has the following format (header onyl shown for illustration):
+If desired an additional **annotation bed file** can be supplied for checking with overlap of known protein domains. It has the following format (header only shown for illustration):
 
 |Protein/Transcript ID   | Start   | End   | Identifier  |
 |---|---|---|---|
