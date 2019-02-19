@@ -71,10 +71,11 @@ else :
                 lastElem = elems[1]
                 Alignments={}
 
-                orfLenNuc=int(orf[4]) - int(orf[3])+1
-                orfLenProt=orfLenNuc/float(3)
-                alignLength=float(int(elems[9])-int(elems[8])+1)
-            if float(elems[2]) >= identityCutoff and orfLenProt >= minLength and (orf[0] == target[0]) and ((alignLength/orfLenProt) >= minAlignmentRate):
+            orfLenNuc=int(orf[4]) - int(orf[3])+1
+            orfLenProt=orfLenNuc/float(3)
+            alignLength=float(int(elems[9])-int(elems[8])+1)
+
+            if (float(elems[2]) >= identityCutoff) and (orfLenProt >= minLength) and (orf[0] == target[0]) and ((alignLength/orfLenProt) >= minAlignmentRate):
                 dummy=orf[2:5]
                 dummy.append(str(elems[2]))
                 dummy.append(str(int(alignLength)))
@@ -83,10 +84,9 @@ else :
                     Alignments[orf[1]].append(colon.join(dummy))
                 else :
                     Alignments[orf[1]] = [colon.join(dummy)]
-	    #else:
-		#if float(elems[2]) >= identityCutoff and (orf[0] == target[0]):
-		#	print "orfLenProt=",orfLenProt,"alignLength",alignLength,"alignLength/orfLenProt",str(round(float(alignLength/orfLenProt),3))
+
             target=elems[1].split("|")
+	#output the last transcript
         checkAlignments(Alignments,target[0],target[1])
 
 
