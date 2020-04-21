@@ -20,7 +20,7 @@ As input you need to give two fasta files.
 
 **>ENSG00000001626|ENST00000003084**
 
-Where the first entry is the gene identifier and the second one the protein ID/transcript ID from which the protein was made. They need to be separated by at | character
+Where the first entry is the gene identifier and the second one the protein ID/transcript ID from which the protein was made. They need to be separated by a | character
 
 2.The second a Fasta file that contains transcript sequences. From these transcript sequences possible open reading frames (ORFs) are generated and translated to peptides and then used for alignment with BlastP against the proteins.
 
@@ -30,7 +30,7 @@ The format looks similar to above:
 
 The only difference is that the second ID is the transcript ID that represents the transcript to be subjected to ORF generation.
 
-If desired an additional **annotation bed file** can be supplied for checking with overlap of known protein domains. It has the following format (header only shown for illustration):
+If desired an additional **annotation bed file** can be supplied for checking with overlap of known protein domains. It has the following format (header only shown for illustration should not be in the file):
 
 |Protein/Transcript ID   | Start   | End   | Identifier  |
 |---|---|---|---|
