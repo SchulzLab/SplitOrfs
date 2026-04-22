@@ -476,6 +476,10 @@ python "${script_dir}"/SplitOrfs-master/get_background_genes_for_go_analysis.py 
  "${transcripts}" \
  "${output}"/BackgroundGeneFile.txt
 
+ python "${script_dir}"/Uniqueness_scripts/categorize_so_transcripts_by_urs.py \
+ --so_results "${output}"/UniqueProteinORFPairs.txt \
+ --ur_path "${output}"/Unique_DNA_Regions_genomic_final.bed
+
 
 # ----- Remove intermediate Results ----- #
 mv "${output}"/Unique_Protein_Regions_gt8_valid_filtered.bed "${output}"/Unique_Protein_Regions_protein_coordinates.bed

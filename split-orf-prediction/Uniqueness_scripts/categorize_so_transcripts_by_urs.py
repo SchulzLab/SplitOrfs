@@ -123,7 +123,7 @@ def calculate_overlapping_region_percentage(start1, end1, start2, end2):
         return nr_bp_overlap/shorter_region
 
 
-def get_max_overlap_of_regions_in_df(chr_df, threshold=0.7):
+def get_max_overlap_of_regions_in_df(chr_df, threshold=0.8):
     for index1 in chr_df.index:
         for index2 in chr_df.index:
             if index1 != index2:
@@ -275,7 +275,7 @@ def identify_overlapping_unique_regions(all_predicted_so_orfs, dna_ur_df, outdir
     chr_dfs = {chr: chr_df.reset_index(drop=True).copy(
     ) for chr, chr_df in dna_ur_df.groupby('chr')}
     chr_dfs = {chr: get_max_overlap_of_regions_in_df(
-        chr_df, 0.7) for chr, chr_df in chr_dfs.items()}
+        chr_df, 0.8) for chr, chr_df in chr_dfs.items()}
     dna_overlapping_ur_df = pd.concat(
         chr_dfs.values()).reset_index(drop=True).copy()
 
