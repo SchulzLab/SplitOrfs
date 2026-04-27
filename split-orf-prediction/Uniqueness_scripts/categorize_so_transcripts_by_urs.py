@@ -171,7 +171,7 @@ def get_max_overlap_of_regions_in_df(chr_df, threshold=0.2):
     return chr_df
 
 
-def summarize_overlapping_urs(gene_df):
+def summarize_overlapping_urs(gene_df, col_index):
     '''
     check per gene for overlapping unique regions and only keep the first instance
     this is done because not always the same ORFs overlap for overlapping unique regions
@@ -184,8 +184,8 @@ def summarize_overlapping_urs(gene_df):
             index2 = index1
             while index2 < len(gene_df.index) - 1:
                 index2 = index2 + 1
-                orf_id_overlap_1 = gene_df.iloc[index1, 6]
-                orf_id_overlap_2 = gene_df.iloc[index2, 6]
+                orf_id_overlap_1 = gene_df.iloc[index1, col_index]
+                orf_id_overlap_2 = gene_df.iloc[index2, col_index]
                 # if ORF IDs do overlap
                 if len(orf_id_overlap_1 & orf_id_overlap_2) > 0:
                     # check if index still exists or is already removed
@@ -227,7 +227,7 @@ def format_categorization_df(so_categorization_df):
     def get_list_cols(so_categorization_df):
         list_cols = []
         for col in so_categorization_df.columns:
-            if so_categorization_df[col].apply(lambda x: isinstance(x, list)).any():
+            if so_categorization_df[col].apply(lambda x: isinstance(x, list)).all():
                 list_cols.append(col)
         return list_cols
 
@@ -284,6 +284,69 @@ def so_transcript_categorization(dna_overlapping_ur_df, all_predicted_so_orfs):
     return so_categorization_df, all_predicted_so_orfs
 
 
+def overlapping_ur_df_by_id(dna_ur_df, outdir, id, agg_col_index):
+    '''
+    group URs by gene, transcript or chromosomes and summarize if they overlap more than
+    the indicated threshold: 0.2
+    '''
+    # get completely overlapping URs
+    gene_dfs = {gene: gene_df.reset_index(drop=True).copy(
+    ) for gene, gene_df in dna_ur_df.groupby(id)}
+    gene_dfs = {gene: get_max_overlap_of_regions_in_df(
+        gene_df, 0.2) for gene, gene_df in gene_dfs.items()}
+    dna_overlapping_ur_df = pd.concat(
+        gene_dfs.values()).reset_index(drop=True).copy()
+
+    dna_overlapping_ur_df['ORFs_sharing_region'] = dna_overlapping_ur_df['OrfIDsOverlapping'].apply(
+        lambda x: len(x))
+    dna_overlapping_ur_df['shared_region_type'] = dna_overlapping_ur_df['OrfPositionsOverlapping'].apply(
+        lambda x: len(x))
+    # frozenset: order within the set does not matter!
+    dna_overlapping_ur_df.loc[:, 'OrfIDsOverlapping'] = dna_overlapping_ur_df['OrfIDsOverlapping'].apply(
+        lambda x: frozenset(x))
+
+    if id == 'OrfTransID':
+        # aggregate ORFs that have overlapping URs with the exact same set of ORFs
+        dna_distinct_ur_df = dna_overlapping_ur_df.groupby('OrfIDsOverlapping').agg(
+            {'genomic_UR': 'first',
+             'ORFs_sharing_region': 'first',
+             'OrfPosition': 'first',
+             'ID': lambda x: ','.join(x),
+             'OrfTransID': 'first',
+             'OrfPositionsOverlapping': 'first',
+             'OrfIDsOverlapping': 'first',
+             'OverlapPercentage': 'max',
+             'geneID': 'first',
+             }).reset_index(drop=True)
+    else:
+        # aggregate ORFs that have overlapping URs with the exact same set of ORFs
+        dna_distinct_ur_df = dna_overlapping_ur_df.groupby('OrfIDsOverlapping').agg(
+            {'genomic_UR': 'first',
+             'ORFs_sharing_region': 'first',
+             'OrfPosition': 'first',
+             'ID': lambda x: ','.join(x),
+             'OrfTransID': lambda x: ','.join(x),
+             'OrfPositionsOverlapping': 'first',
+             'OrfIDsOverlapping': 'first',
+             'OverlapPercentage': 'max',
+             'geneID': 'first',
+             }).reset_index(drop=True)
+
+    gene_dfs = {gene: gene_df.reset_index(drop=True).copy(
+    ) for gene, gene_df in dna_distinct_ur_df.groupby(id)}
+    gene_dfs = {gene: summarize_overlapping_urs(
+        gene_df, agg_col_index) for gene, gene_df in gene_dfs.items()}
+    dna_distinct_ur_df = pd.concat(
+        gene_dfs.values()).reset_index(drop=True).copy()
+
+    dna_distinct_ur_df['OrfPosition'].value_counts(
+    ).reset_index().to_csv(os.path.join(outdir, f'distinct_URs_per_position_{id}.csv'))
+    dna_distinct_ur_df.to_csv(os.path.join(
+        outdir, f'dna_distinct_ur_df_{id}.csv'))
+
+    return dna_distinct_ur_df, dna_overlapping_ur_df
+
+
 def identify_overlapping_unique_regions(all_predicted_so_orfs, dna_ur_df, outdir):
     '''
     Categorize Split-ORF transcripts by their unique regions in distinct ORFs
@@ -293,118 +356,88 @@ def identify_overlapping_unique_regions(all_predicted_so_orfs, dna_ur_df, outdir
     '''
     dna_ur_df = classify_ur_per_orf_position(dna_ur_df, all_predicted_so_orfs)
 
-    # get completely overlapping URs
-    chr_dfs = {chr: chr_df.reset_index(drop=True).copy(
-    ) for chr, chr_df in dna_ur_df.groupby('chr')}
-    chr_dfs = {chr: get_max_overlap_of_regions_in_df(
-        chr_df, 0.2) for chr, chr_df in chr_dfs.items()}
-    dna_overlapping_ur_df = pd.concat(
-        chr_dfs.values()).reset_index(drop=True).copy()
-
-    dna_overlapping_ur_df['ORFs_sharing_region'] = dna_overlapping_ur_df['OrfIDsOverlapping'].apply(
-        lambda x: len(x))
-    dna_overlapping_ur_df['shared_region_type'] = dna_overlapping_ur_df['OrfPositionsOverlapping'].apply(
-        lambda x: len(x))
-
-    # frozenset: order within the set does not matter!
-    dna_overlapping_ur_df.loc[:, 'OrfIDsOverlapping'] = dna_overlapping_ur_df['OrfIDsOverlapping'].apply(
-        lambda x: frozenset(x))
-
-    # aggregate ORFs that have overlapping URs with the exact same set of ORFs
-    dna_distinct_ur_df = dna_overlapping_ur_df.groupby('OrfIDsOverlapping').agg(
-        {'genomic_UR': 'first',
-            'ORFs_sharing_region': 'first',
-            'OrfPosition': 'first',
-            'ID': lambda x: ','.join(x),
-            'OrfTransID': lambda x: ','.join(x),
-            'OrfPositionsOverlapping': 'first',
-            'OrfIDsOverlapping': 'first',
-            'OverlapPercentage': 'max',
-         }).reset_index(drop=True)
-
-    dna_distinct_ur_df['geneID'] = dna_distinct_ur_df['ID'].apply(
+    # get completely overlapping URs on gene level
+    dna_ur_df['geneID'] = dna_ur_df['OrfTransID'].apply(
         lambda x: x.split('|')[0])
-    gene_dfs = {gene: gene_df.reset_index(drop=True).copy(
-    ) for gene, gene_df in dna_distinct_ur_df.groupby('geneID')}
-    gene_dfs = {gene: summarize_overlapping_urs(
-        gene_df) for gene, gene_df in gene_dfs.items()}
-    dna_distinct_ur_df = pd.concat(
-        gene_dfs.values()).reset_index(drop=True).copy()
 
-    dna_distinct_ur_df['OrfPosition'].value_counts(
-    ).reset_index().to_csv(os.path.join(outdir, 'distinct_URs_per_position.csv'))
-
-    dna_distinct_ur_df.to_csv(os.path.join(
-        outdir, 'dna_distinct_ur_df.csv'))
+    dna_distinct_ur_df, dna_overlapping_ur_df = overlapping_ur_df_by_id(
+        dna_ur_df, outdir, 'geneID', 6)
+    dna_distinct_ur_df_trans, dna_overlapping_ur_df_trans = overlapping_ur_df_by_id(
+        dna_ur_df, outdir, 'OrfTransID', 6)
 
     so_categorization_df, all_predicted_so_orfs = so_transcript_categorization(
-        dna_overlapping_ur_df, all_predicted_so_orfs)
+        dna_overlapping_ur_df_trans, all_predicted_so_orfs)
 
     so_categorization_df = format_categorization_df(so_categorization_df)
 
     all_predicted_so_orfs.to_csv(os.path.join(
         outdir, 'all_predicted_so_orfs_position.csv'))
 
-    return dna_distinct_ur_df, so_categorization_df
+    return dna_distinct_ur_df, so_categorization_df, dna_distinct_ur_df_trans, dna_overlapping_ur_df_trans
 
 
-def get_overlapping_info(dna_distinct_ur_df, so_categorization_df):
+def get_orfs_with_ur(row):
+    has_ur_list = row['hasUR'].split(',')
+    has_ur_list = [eval(has_ur) for has_ur in has_ur_list]
+    orf_id_list = row['OrfID'].split(',')
+    orfs_with_ur_list = [v for v, m in zip(orf_id_list, has_ur_list) if m]
+    return orfs_with_ur_list
+
+
+def nr_of_non_overlapping_urs(orfs_with_ur_list, dna_overlapping_ur_df, trans_id):
+    # subset the unique df for the same gene
+    orf_set = frozenset(orfs_with_ur_list)
+    dna_overlapping_ur_df_sub = dna_overlapping_ur_df[dna_overlapping_ur_df['OrfTransID'] == trans_id]
+    overlapping_ur_sets = dna_overlapping_ur_df_sub.apply(
+        lambda x: x['OrfIDsOverlapping'].intersection(orf_set), axis=1)
+    # reutrn all ORFs with UR, unless there are overlapping ORFs:
+    # then at least some of the sets are > 1: subtract the number of overlapping ORFs
+    # this works because each ORF is only listed once
+    return len(orf_set) - sum(overlapping_ur_sets.apply(lambda x: len(x) - 1 if len(x) > 0 else 0))
+
+
+def overlapping_orf_ids_within_trans(orfs_with_ur_list, dna_overlapping_ur_df, trans_id):
+    # subset the unique df for the same gene
+    orf_set = frozenset(orfs_with_ur_list)
+    if len(orf_set) > 0:
+        dna_overlapping_ur_df_sub = dna_overlapping_ur_df[
+            dna_overlapping_ur_df['OrfTransID'] == trans_id]
+        overlapping_ur_sets = dna_overlapping_ur_df_sub.apply(
+            lambda x: x['OrfIDsOverlapping'].intersection(orf_set), axis=1).values
+        overlapping_ur_sets = [
+            overlap_set for overlap_set in overlapping_ur_sets if len(overlap_set) > 1]
+        if len(overlapping_ur_sets) > 0:
+            return overlapping_ur_sets
+        else:
+            return None
+    else:
+        return None
+
+
+def check_for_overlapping_orfs_within_trans(row, dna_overlapping_ur_df):
+    orfs_with_ur_list = get_orfs_with_ur(row)
+    trans_id = row['geneID'] + '|' + row['OrfTransID']
+    nr_distinct_urs = nr_of_non_overlapping_urs(
+        orfs_with_ur_list, dna_overlapping_ur_df, trans_id)
+    return nr_distinct_urs
+
+
+def get_overlapping_ur_orfs_within_trans(row, dna_overlapping_ur_df):
+    orfs_with_ur_list = get_orfs_with_ur(row)
+    trans_id = row['geneID'] + '|' + row['OrfTransID']
+    overlapping_ur_orfs_within_trans = overlapping_orf_ids_within_trans(
+        orfs_with_ur_list, dna_overlapping_ur_df, trans_id)
+    return overlapping_ur_orfs_within_trans
+
+
+def get_overlapping_info(dna_distinct_ur_df, so_categorization_df, dna_distinct_ur_df_trans):
     so_categorization_df['UROverlapWithinTrans'] = ''
     so_categorization_df['UROverlapGeneral'] = ''
     so_categorization_df['NrDistinctURs'] = 0
 
     # subset for overlapping URs only
-    dna_overlapping_ur_df = dna_distinct_ur_df[dna_distinct_ur_df['OrfIDsOverlapping'].apply(
+    dna_overlapping_ur_df = dna_distinct_ur_df_trans[dna_distinct_ur_df_trans['OrfIDsOverlapping'].apply(
         lambda x: len(x) > 1)]
-
-    def get_orfs_with_ur(row):
-        has_ur_list = row['hasUR'].split(',')
-        has_ur_list = [eval(has_ur) for has_ur in has_ur_list]
-        orf_id_list = row['OrfID'].split(',')
-        orfs_with_ur_list = [v for v, m in zip(orf_id_list, has_ur_list) if m]
-        return orfs_with_ur_list
-
-    def nr_of_non_overlapping_urs(orfs_with_ur_list, dna_overlapping_ur_df, gene_id):
-        # subset the unique df for the same gene
-        orf_set = frozenset(orfs_with_ur_list)
-        dna_overlapping_ur_df_sub = dna_overlapping_ur_df[dna_overlapping_ur_df['geneID'] == gene_id]
-        overlapping_ur_sets = dna_overlapping_ur_df_sub.apply(
-            lambda x: x['OrfIDsOverlapping'].intersection(orf_set), axis=1)
-        # reutrn all ORFs with UR, unless there are overlapping ORFs:
-        # then at least some of the sets are > 1: subtract the number of overlapping ORFs
-        # this works because each ORF is only listed once
-        return len(orf_set) - sum(overlapping_ur_sets.apply(lambda x: len(x) - 1 if len(x) > 0 else 0))
-
-    def overlapping_orf_ids_within_trans(orfs_with_ur_list, dna_overlapping_ur_df, gene_id):
-        # subset the unique df for the same gene
-        orf_set = frozenset(orfs_with_ur_list)
-        if len(orf_set) > 0:
-            dna_overlapping_ur_df_sub = dna_overlapping_ur_df[
-                dna_overlapping_ur_df['geneID'] == gene_id]
-            overlapping_ur_sets = dna_overlapping_ur_df_sub.apply(
-                lambda x: x['OrfIDsOverlapping'].intersection(orf_set), axis=1).values
-            overlapping_ur_sets = [
-                overlap_set for overlap_set in overlapping_ur_sets if len(overlap_set) > 1]
-            if len(overlapping_ur_sets) > 0:
-                return overlapping_ur_sets
-            else:
-                return None
-        else:
-            return None
-
-    def check_for_overlapping_orfs_within_trans(row, dna_overlapping_ur_df):
-        orfs_with_ur_list = get_orfs_with_ur(row)
-        gene_id = row['geneID']
-        nr_distinct_urs = nr_of_non_overlapping_urs(
-            orfs_with_ur_list, dna_overlapping_ur_df, gene_id)
-        return nr_distinct_urs
-
-    def get_overlapping_ur_orfs_within_trans(row, dna_overlapping_ur_df):
-        orfs_with_ur_list = get_orfs_with_ur(row)
-        gene_id = row['geneID']
-        overlapping_ur_orfs_within_trans = overlapping_orf_ids_within_trans(
-            orfs_with_ur_list, dna_overlapping_ur_df, gene_id)
-        return overlapping_ur_orfs_within_trans
 
     so_categorization_df['NrDistinctURs'] = so_categorization_df.apply(
         lambda x: check_for_overlapping_orfs_within_trans(x, dna_overlapping_ur_df), axis=1)
@@ -425,19 +458,20 @@ def get_overlapping_info(dna_distinct_ur_df, so_categorization_df):
     # have it as a True,False list etc
     # prepare the different cols accordingly
     so_categorization_df['hasDistinctUR'] = so_categorization_df['hasUR'].apply(
-        lambda x: x.split(','))
+        lambda x: [eval(ur_indicator) for ur_indicator in x.split(',')])
     so_categorization_df['OrfPosition'] = so_categorization_df['OrfPosition'].apply(
         lambda x: x.split(','))
     so_categorization_df['OrfID'] = so_categorization_df['OrfID'].apply(
         lambda x: x.split(','))
+    so_categorization_df['OrfStart'] = so_categorization_df['OrfStart'].apply(
+        lambda x: x.split(','))
     so_categorization_df['IDfirstORF'] = so_categorization_df.apply(
         lambda x: x.loc['OrfID'][x['OrfPosition'].index('first')], axis=1)
 
-    # there I need to change
-    so_categorization_df[so_categorization_df['NrOverlapURsWithinTrans']
-                         > 0, 'hasDistinctUR']
-
     def orf_id_overlapping_first(row):
+        '''
+        Which ORF ID(s) are overlapping with the most 5' (first) ORF?
+        '''
         if row['UROverlapWithinTrans'] == None:
             return None
         elif row['URInFirstORF'] == 0:
@@ -454,6 +488,87 @@ def get_overlapping_info(dna_distinct_ur_df, so_categorization_df):
 
     so_categorization_df['IDOverlapfirstORF'] = so_categorization_df.apply(
         lambda row: orf_id_overlapping_first(row), axis=1)
+
+    def assign_has_distinct_ur(row):
+        '''
+        boolean comma-sep string of whether the repsective ORF has a distinct UR or not
+        '''
+        if row['nrOrfsWithUR'] == 0:
+            return None
+        elif row['nrOrfsWithUR'] == 1:
+            return row['hasUR']
+        else:
+            overlapping_orf_sets = row['UROverlapWithinTrans']
+            if overlapping_orf_sets != None:
+                orf_dict = {}
+                more_3_prime_orfs = []
+                for overlapping_set in overlapping_orf_sets:
+                    for orf in overlapping_set:
+                        orf_index = row['OrfID'].index(orf)
+                        orf_start = row['OrfStart'][orf_index]
+                        orf_dict[orf] = int(orf_start)
+
+                    most_5_prime = min(orf_dict, key=orf_dict.get)
+                    more_3_prime_orfs.extend(
+                        [orf for orf in orf_dict.keys() if orf != most_5_prime])
+
+                orfs_no_distinct_ur = [index for index, orf in enumerate(
+                    row['OrfID']) if orf in more_3_prime_orfs]
+                has_distinct_ur_list = [
+                    x if i not in orfs_no_distinct_ur else False for i, x in enumerate(row['hasDistinctUR'])]
+                return ','.join([str(has_ur) for has_ur in has_distinct_ur_list])
+
+            else:
+                return row['hasUR']
+
+    def orfs_for_which_ur_counts(row):
+        '''
+        assign each UR to one ORF, if overlap then the most
+        5' ORF is assigned the UR
+        only report these ORFs with distinct UR as a comma separated string
+        '''
+        if row['nrOrfsWithUR'] == 0:
+            return None
+        elif row['nrOrfsWithUR'] == 1:
+            return row['OrfID'][row['hasDistinctUR'].index(True)]
+        else:
+            overlapping_orf_sets = row['UROverlapWithinTrans']
+            if overlapping_orf_sets != None:
+                orf_dict = {}
+                # most_5_prime_orfs = []
+                more_3_prime_orfs = []
+                for overlapping_set in overlapping_orf_sets:
+                    for orf in overlapping_set:
+                        orf_index = row['OrfID'].index(orf)
+                        orf_start = row['OrfStart'][orf_index]
+                        orf_dict[orf] = int(orf_start)
+
+                    most_5_prime = min(orf_dict, key=orf_dict.get)
+                    # most_5_prime_orfs.append(orf_dict[most_5_prime])
+                    more_3_prime_orfs.extend(
+                        [orf for orf in orf_dict.keys() if orf != most_5_prime])
+
+                all_orfs_with_ur_list = [v for v, m in zip(
+                    row['OrfID'], row['hasDistinctUR']) if m]
+
+                orfs_with_distinct_ur = [
+                    orf for orf in all_orfs_with_ur_list if orf not in more_3_prime_orfs]
+
+                orf_with_ur_string = ','.join(orfs_with_distinct_ur)
+
+            else:
+                orf_with_ur_string = ','.join(v for v, m in zip(
+                    row['OrfID'], row['hasDistinctUR']) if m)
+            return orf_with_ur_string
+
+    so_categorization_df['OrfsWithDistinctURTrans'] = so_categorization_df.apply(
+        lambda row: orfs_for_which_ur_counts(row), axis=1)
+    so_categorization_df['hasDistinctUR'] = so_categorization_df.apply(
+        lambda row: assign_has_distinct_ur(row), axis=1)
+
+    so_categorization_df = format_categorization_df(so_categorization_df)
+
+    return so_categorization_df
 
     # column iwth unique ORF IDs:
     # first ORF if overlap with first ORF, else if middle and last overlap: randomly select one of them?
@@ -472,10 +587,11 @@ def main(so_results, ur_path):
         predicted_so_orfs)
     all_predicted_so_orfs = get_so_position_in_transcript(
         all_predicted_so_orfs)
-    dna_distinct_ur_df, so_categorization_df = identify_overlapping_unique_regions(
-        all_predicted_so_orfs, dna_ur_df, outdir)
+    dna_distinct_ur_df, so_categorization_df, dna_distinct_ur_df_trans, \
+        dna_overlapping_ur_df_trans = identify_overlapping_unique_regions(
+            all_predicted_so_orfs, dna_ur_df, outdir)
     so_categorization_df = get_overlapping_info(
-        dna_distinct_ur_df, so_categorization_df)
+        dna_distinct_ur_df, so_categorization_df, dna_distinct_ur_df_trans)
     so_categorization_df.to_csv(os.path.join(
         outdir, 'so_categorization_df.csv'))
 
