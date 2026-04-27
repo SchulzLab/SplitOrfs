@@ -385,6 +385,9 @@ def get_orfs_with_ur(row):
 
 
 def nr_of_non_overlapping_urs(orfs_with_ur_list, dna_overlapping_ur_df, trans_id):
+    '''
+    get number of distinct UR ORFs
+    '''
     # subset the unique df for the same gene
     orf_set = frozenset(orfs_with_ur_list)
     dna_overlapping_ur_df_sub = dna_overlapping_ur_df[dna_overlapping_ur_df['OrfTransID'] == trans_id]
@@ -397,6 +400,9 @@ def nr_of_non_overlapping_urs(orfs_with_ur_list, dna_overlapping_ur_df, trans_id
 
 
 def overlapping_orf_ids_within_trans(orfs_with_ur_list, dna_overlapping_ur_df, trans_id):
+    '''
+    get set of overlapping ORF IDs within transcript as frozen set
+    '''
     # subset the unique df for the same gene
     orf_set = frozenset(orfs_with_ur_list)
     if len(orf_set) > 0:
@@ -423,6 +429,10 @@ def check_for_overlapping_orfs_within_trans(row, dna_overlapping_ur_df):
 
 
 def get_overlapping_ur_orfs_within_trans(row, dna_overlapping_ur_df):
+    '''
+    apply function to get the string of non-overlapping ORFs to consider 
+    for ribo-seq coverage
+    '''
     orfs_with_ur_list = get_orfs_with_ur(row)
     trans_id = row['geneID'] + '|' + row['OrfTransID']
     overlapping_ur_orfs_within_trans = overlapping_orf_ids_within_trans(
@@ -430,7 +440,104 @@ def get_overlapping_ur_orfs_within_trans(row, dna_overlapping_ur_df):
     return overlapping_ur_orfs_within_trans
 
 
+def orf_id_overlapping_first(row):
+    '''
+    Which ORF ID(s) are overlapping with the most 5' (first) ORF?
+    '''
+    if row['UROverlapWithinTrans'] == None:
+        return None
+    elif row['URInFirstORF'] == 0:
+        return None
+    else:
+        # there is only one overlapping set where the first ORF is in!
+        ov_set_first = [
+            ov_set for ov_set in row['UROverlapWithinTrans'] if row['IDfirstORF'] in ov_set]
+        if len(ov_set_first) > 0:
+            ov_set_first = ov_set_first[0]
+            return [orf for orf in ov_set_first if orf != row['IDfirstORF']]
+        else:
+            return None
+
+
+def assign_has_distinct_ur(row):
+    '''
+    boolean comma-sep string of whether the repsective ORF has a distinct UR or not
+    '''
+    if row['nrOrfsWithUR'] == 0:
+        return row['hasUR']
+    elif row['nrOrfsWithUR'] == 1:
+        return row['hasUR']
+    else:
+        overlapping_orf_sets = row['UROverlapWithinTrans']
+        if overlapping_orf_sets != None:
+            orf_dict = {}
+            more_3_prime_orfs = []
+            for overlapping_set in overlapping_orf_sets:
+                for orf in overlapping_set:
+                    orf_index = row['OrfID'].index(orf)
+                    orf_start = row['OrfStart'][orf_index]
+                    orf_dict[orf] = int(orf_start)
+
+                most_5_prime = min(orf_dict, key=orf_dict.get)
+                more_3_prime_orfs.extend(
+                    [orf for orf in orf_dict.keys() if orf != most_5_prime])
+
+            orfs_no_distinct_ur = [index for index, orf in enumerate(
+                row['OrfID']) if orf in more_3_prime_orfs]
+            has_distinct_ur_list = [
+                x if i not in orfs_no_distinct_ur else False for i, x in enumerate(row['hasDistinctUR'])]
+            return ','.join([str(has_ur) for has_ur in has_distinct_ur_list])
+
+        else:
+            return row['hasUR']
+
+
+def orfs_for_which_ur_counts(row):
+    '''
+    assign each UR to one ORF, if overlap then the most
+    5' ORF is assigned the UR
+    only report these ORFs with distinct UR as a comma separated string
+    '''
+    if row['nrOrfsWithUR'] == 0:
+        return None
+    elif row['nrOrfsWithUR'] == 1:
+        return row['OrfID'][row['hasDistinctUR'].index(True)]
+    else:
+        overlapping_orf_sets = row['UROverlapWithinTrans']
+        if overlapping_orf_sets != None:
+            orf_dict = {}
+            # most_5_prime_orfs = []
+            more_3_prime_orfs = []
+            for overlapping_set in overlapping_orf_sets:
+                for orf in overlapping_set:
+                    orf_index = row['OrfID'].index(orf)
+                    orf_start = row['OrfStart'][orf_index]
+                    orf_dict[orf] = int(orf_start)
+
+                most_5_prime = min(orf_dict, key=orf_dict.get)
+                # most_5_prime_orfs.append(orf_dict[most_5_prime])
+                more_3_prime_orfs.extend(
+                    [orf for orf in orf_dict.keys() if orf != most_5_prime])
+
+            all_orfs_with_ur_list = [v for v, m in zip(
+                row['OrfID'], row['hasDistinctUR']) if m]
+
+            orfs_with_distinct_ur = [
+                orf for orf in all_orfs_with_ur_list if orf not in more_3_prime_orfs]
+
+            orf_with_ur_string = ','.join(orfs_with_distinct_ur)
+
+        else:
+            orf_with_ur_string = ','.join(v for v, m in zip(
+                row['OrfID'], row['hasDistinctUR']) if m)
+        return orf_with_ur_string
+
+
 def get_overlapping_info(dna_distinct_ur_df, so_categorization_df, dna_distinct_ur_df_trans):
+    '''
+    Add information to categorization_df of non-overlapping ORF URs to consider for 
+    ribo-seq coverage in different formats
+    '''
     so_categorization_df['UROverlapWithinTrans'] = ''
     so_categorization_df['UROverlapGeneral'] = ''
     so_categorization_df['NrDistinctURs'] = 0
@@ -468,103 +575,19 @@ def get_overlapping_info(dna_distinct_ur_df, so_categorization_df, dna_distinct_
     so_categorization_df['IDfirstORF'] = so_categorization_df.apply(
         lambda x: x.loc['OrfID'][x['OrfPosition'].index('first')], axis=1)
 
-    def orf_id_overlapping_first(row):
-        '''
-        Which ORF ID(s) are overlapping with the most 5' (first) ORF?
-        '''
-        if row['UROverlapWithinTrans'] == None:
-            return None
-        elif row['URInFirstORF'] == 0:
-            return None
-        else:
-            # there is only one overlapping set where the first ORF is in!
-            ov_set_first = [
-                ov_set for ov_set in row['UROverlapWithinTrans'] if row['IDfirstORF'] in ov_set]
-            if len(ov_set_first) > 0:
-                ov_set_first = ov_set_first[0]
-                return [orf for orf in ov_set_first if orf != row['IDfirstORF']]
-            else:
-                return None
-
     so_categorization_df['IDOverlapfirstORF'] = so_categorization_df.apply(
         lambda row: orf_id_overlapping_first(row), axis=1)
-
-    def assign_has_distinct_ur(row):
-        '''
-        boolean comma-sep string of whether the repsective ORF has a distinct UR or not
-        '''
-        if row['nrOrfsWithUR'] == 0:
-            return None
-        elif row['nrOrfsWithUR'] == 1:
-            return row['hasUR']
-        else:
-            overlapping_orf_sets = row['UROverlapWithinTrans']
-            if overlapping_orf_sets != None:
-                orf_dict = {}
-                more_3_prime_orfs = []
-                for overlapping_set in overlapping_orf_sets:
-                    for orf in overlapping_set:
-                        orf_index = row['OrfID'].index(orf)
-                        orf_start = row['OrfStart'][orf_index]
-                        orf_dict[orf] = int(orf_start)
-
-                    most_5_prime = min(orf_dict, key=orf_dict.get)
-                    more_3_prime_orfs.extend(
-                        [orf for orf in orf_dict.keys() if orf != most_5_prime])
-
-                orfs_no_distinct_ur = [index for index, orf in enumerate(
-                    row['OrfID']) if orf in more_3_prime_orfs]
-                has_distinct_ur_list = [
-                    x if i not in orfs_no_distinct_ur else False for i, x in enumerate(row['hasDistinctUR'])]
-                return ','.join([str(has_ur) for has_ur in has_distinct_ur_list])
-
-            else:
-                return row['hasUR']
-
-    def orfs_for_which_ur_counts(row):
-        '''
-        assign each UR to one ORF, if overlap then the most
-        5' ORF is assigned the UR
-        only report these ORFs with distinct UR as a comma separated string
-        '''
-        if row['nrOrfsWithUR'] == 0:
-            return None
-        elif row['nrOrfsWithUR'] == 1:
-            return row['OrfID'][row['hasDistinctUR'].index(True)]
-        else:
-            overlapping_orf_sets = row['UROverlapWithinTrans']
-            if overlapping_orf_sets != None:
-                orf_dict = {}
-                # most_5_prime_orfs = []
-                more_3_prime_orfs = []
-                for overlapping_set in overlapping_orf_sets:
-                    for orf in overlapping_set:
-                        orf_index = row['OrfID'].index(orf)
-                        orf_start = row['OrfStart'][orf_index]
-                        orf_dict[orf] = int(orf_start)
-
-                    most_5_prime = min(orf_dict, key=orf_dict.get)
-                    # most_5_prime_orfs.append(orf_dict[most_5_prime])
-                    more_3_prime_orfs.extend(
-                        [orf for orf in orf_dict.keys() if orf != most_5_prime])
-
-                all_orfs_with_ur_list = [v for v, m in zip(
-                    row['OrfID'], row['hasDistinctUR']) if m]
-
-                orfs_with_distinct_ur = [
-                    orf for orf in all_orfs_with_ur_list if orf not in more_3_prime_orfs]
-
-                orf_with_ur_string = ','.join(orfs_with_distinct_ur)
-
-            else:
-                orf_with_ur_string = ','.join(v for v, m in zip(
-                    row['OrfID'], row['hasDistinctUR']) if m)
-            return orf_with_ur_string
 
     so_categorization_df['OrfsWithDistinctURTrans'] = so_categorization_df.apply(
         lambda row: orfs_for_which_ur_counts(row), axis=1)
     so_categorization_df['hasDistinctUR'] = so_categorization_df.apply(
         lambda row: assign_has_distinct_ur(row), axis=1)
+
+    assert (so_categorization_df['hasDistinctUR'].apply(lambda x: sum([eval(ur_bool) for ur_bool in x.split(',')])) ==
+            so_categorization_df['NrDistinctURs']).all()
+
+    assert (so_categorization_df['OrfsWithDistinctURTrans'].apply(
+        lambda x: len(x.split(',')) if isinstance(x, str) else 0) == so_categorization_df['NrDistinctURs']).all()
 
     so_categorization_df = format_categorization_df(so_categorization_df)
 
@@ -602,8 +625,5 @@ if __name__ == "__main__":
 
     so_results = args.so_results
     ur_path = args.ur_path
-
-    # ur_path = '/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/Unique_DNA_Regions_genomic_final.bed'
-    # so_results = '/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/UniqueProteinORFPairs.txt'
 
     main(so_results, ur_path)
