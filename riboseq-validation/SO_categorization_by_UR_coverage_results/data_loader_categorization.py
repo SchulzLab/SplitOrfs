@@ -16,6 +16,8 @@ def load_so_results(so_results):
 def load_so_categorization_df(so_categorization_df):
     so_trans_categorized_df = pd.read_csv(
         so_categorization_df, header=0, index_col=0)
+    so_trans_categorized_df['OrfsWithDistinctURTrans'] = so_trans_categorized_df['OrfsWithDistinctURTrans'].apply(
+        lambda x: x.split(',') if not isinstance(x, float) else [])
     return so_trans_categorized_df
 
 

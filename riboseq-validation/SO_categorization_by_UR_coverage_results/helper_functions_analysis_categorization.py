@@ -385,12 +385,12 @@ def add_sample_info_ur_df(validated_so_df, val_dna_overlapping_ur_df, outdir, nr
 
 def unique_regions_present(row):
     if row['URInFirstORF']:
-        if row['URInMiddleORF'] or row['URInLastORF']:
-            return 'UR in first and second ORF'
+        if row['DistinctURInSecondORF'] > 0:
+            return 'UR 1. & 2. ORF'
         else:
-            return 'UR in first ORF'
-    elif row['URInMiddleORF'] or row['URInLastORF']:
-        return 'UR in second ORF'
+            return 'UR 1. ORF'
+    elif row['DistinctURInSecondORF'] > 0:
+        return 'UR 2. ORF'
     else:
         return 'no UR'
 
@@ -398,13 +398,26 @@ def unique_regions_present(row):
 def unique_regions_covered(row):
     if row['covFirst']:
         if row['covSecond']:
-            return 'cov UR in first and second ORF'
+            return '1.& 2. ORF'
         else:
-            return 'cov UR in first ORF'
+            return '1. ORF'
     elif row['covSecond']:
-        return 'cov UR in second ORF'
+        return '2. ORF'
     else:
         return 'no UR cov'
+
+
+def orf_has_coverage(row, covered_orfs):
+    if row['OrfID'] in covered_orfs and row['OrfID'] in row['OrfsWithDistinctURTrans']:
+        if row['OrfPosition'] == 'first':
+            row['covFirst'] = 1
+        elif row['OrfPosition'] == 'middle':
+            row['covMiddle'] = 1
+            row['covSecond'] = 1
+        elif row['OrfPosition'] == 'last':
+            row['covLast'] = 1
+            row['covSecond'] = 1
+    return row
 
 
 def split_orf_coverage_by_categorization(so_categorization_df, validated_so_df):
@@ -420,18 +433,6 @@ def split_orf_coverage_by_categorization(so_categorization_df, validated_so_df):
 
     so_categorization_df = so_categorization_df.explode(
         ['OrfID', 'OrfStart', 'OrfPosition', 'genomic_UR', 'hasUR'])
-
-    def orf_has_coverage(row, covered_orfs):
-        if row['OrfID'] in covered_orfs:
-            if row['OrfPosition'] == 'first':
-                row['covFirst'] = 1
-            elif row['OrfPosition'] == 'middle':
-                row['covMiddle'] = 1
-                row['covSecond'] = 1
-            elif row['OrfPosition'] == 'last':
-                row['covLast'] = 1
-                row['covSecond'] = 1
-        return row
 
     so_categorization_df = so_categorization_df.apply(
         lambda x: orf_has_coverage(x, validated_so_df['OrfID'].tolist()), axis=1)
@@ -451,7 +452,8 @@ def split_orf_coverage_by_categorization(so_categorization_df, validated_so_df):
             'URInLastORF': 'first',
             'URInMiddleORF': 'first',
             'NrDistinctURs': 'first',
-            'NrDistinctURs': 'first',
+            'OrfsWithDistinctURTrans': 'first',
+            'DistinctURInSecondORF': 'first',
             'covFirst': 'max',
             'covMiddle': 'max',
             'covLast': 'max',
@@ -468,3 +470,16 @@ def split_orf_coverage_by_categorization(so_categorization_df, validated_so_df):
         lambda x: unique_regions_covered(x), axis=1)
 
     return so_categorization_df
+
+
+def get_ribocov_interesting_candidate_genes(so_categorization_df, outdir, sample_type, region_type):
+    if sample_type == 'NMD_inhibition':
+        so_categorization_df_covered = so_categorization_df[so_categorization_df['covSecond'] > 0]
+    else:
+        so_categorization_df_covered = so_categorization_df[
+            so_categorization_df['UR covered'] != 'no UR cov']
+
+    so_categorization_df_covered['geneID'].to_csv(os.path.join(
+        outdir, f'{sample_type}_{region_type}_genes_interesting_candidates.txt'), index=False, header=False)
+    so_categorization_df_covered.to_csv(os.path.join(
+        outdir, f'{sample_type}_{region_type}_interesting_candidates.csv'), index=False)

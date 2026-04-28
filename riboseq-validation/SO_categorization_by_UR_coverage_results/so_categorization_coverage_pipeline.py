@@ -10,7 +10,8 @@ from helper_functions_analysis_categorization import explode_so_df, \
     val_so_by_position, all_URs_by_position, \
     val_perc_first_middle_last_orfs_csv, count_orfs_by_position, \
     identify_overlapping_unique_regions, validated_so_per_sample_analysis, \
-    add_sample_info_ur_df, split_orf_coverage_by_categorization
+    add_sample_info_ur_df, split_orf_coverage_by_categorization, \
+    get_ribocov_interesting_candidate_genes
 from plotting import plot_val_so_sets, plot_three_category_pie, plot_sunburst_ribo_cov_orf, \
     plot_possible_ribocov_information_pie
 
@@ -78,7 +79,7 @@ def main(so_results, ribo_coverage_path, region_type, ur_path, outdir, so_catego
         so_categorization_df, outdir, region_type, sample_type)
 
     so_categorization_two_orfs_cov_df = so_categorization_df[
-        so_categorization_df['covDistinctUr'] > 1]
+        so_categorization_df['covDistinctUr'] > 1].copy()
 
     so_categorization_two_orfs_cov_df.to_csv(os.path.join(
         outdir, f'so_categorization_two_orfs_cov_df_{sample_type}_{region_type}.csv'))
@@ -141,6 +142,9 @@ def main(so_results, ribo_coverage_path, region_type, ur_path, outdir, so_catego
     val_dna_overlapping_ur_df = add_sample_info_ur_df(
         validated_so_df, val_dna_overlapping_ur_df, outdir, nr_samples)
 
+    get_ribocov_interesting_candidate_genes(
+        so_categorization_df, outdir, sample_type, region_type)
+
 
 if __name__ == "__main__":
     # ------------------ CONSTANTS ------------------ #
@@ -172,3 +176,4 @@ if __name__ == "__main__":
 # sample_type = "control"
 # so_results = '/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/UniqueProteinORFPairs.txt'
 # ribo_coverage_path = '/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/NMD_genome'
+# result_dir = "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/NMD_genome"
