@@ -145,29 +145,6 @@ def get_max_overlap_of_regions_in_df(chr_df, threshold=0.2):
                     chr_df.loc[i, 'OverlapPercentage'] = overlap
                 if overlap >= float(chr_df.iloc[j]['OverlapPercentage']):
                     chr_df.loc[j, 'OverlapPercentage'] = overlap
-
-    # for index1 in chr_df.index:
-    #     for index2 in chr_df.index:
-    #         if index1 != index2:
-    #             start1 = float(chr_df.iloc[index1]['start'])
-    #             end1 = float(chr_df.iloc[index1]['stop'])
-    #             start2 = float(chr_df.iloc[index2]['start'])
-    #             end2 = float(chr_df.iloc[index2]['stop'])
-    #             overlap = calculate_overlapping_region_percentage(
-    #                 start1, end1, start2, end2)
-    #             if overlap >= threshold:
-    #                 chr_df.iloc[index2]['OrfPositionsOverlapping'].add(
-    #                     chr_df.iloc[index1]['OrfPosition'])
-    #                 chr_df.iloc[index2]['OrfIDsOverlapping'].add(
-    #                     chr_df.iloc[index1]['OrfID'])
-    #                 chr_df.iloc[index1]['OrfPositionsOverlapping'].add(
-    #                     chr_df.iloc[index2]['OrfPosition'])
-    #                 chr_df.iloc[index1]['OrfIDsOverlapping'].add(
-    #                     chr_df.iloc[index2]['OrfID'])
-    #             if overlap >= float(chr_df.iloc[index1]['OverlapPercentage']):
-    #                 chr_df.loc[index1, 'OverlapPercentage'] = overlap
-    #             if overlap >= float(chr_df.iloc[index2]['OverlapPercentage']):
-    #                 chr_df.loc[index2, 'OverlapPercentage'] = overlap
     return chr_df
 
 
@@ -369,6 +346,11 @@ def identify_overlapping_unique_regions(all_predicted_so_orfs, dna_ur_df, outdir
         dna_overlapping_ur_df_trans, all_predicted_so_orfs)
 
     so_categorization_df = format_categorization_df(so_categorization_df)
+
+    # check that number of unique regions correspond!
+    # if there is no unique region this is np.nan and np.nan != np.nan
+    assert (so_categorization_df['genomic_UR'].apply(lambda x:
+                                                     len([ur for ur in x.split(',') if ur != 'nan'])) == so_categorization_df['nrOrfsWithUR']).all()
 
     all_predicted_so_orfs.to_csv(os.path.join(
         outdir, 'all_predicted_so_orfs_position.csv'))
@@ -583,9 +565,17 @@ def get_overlapping_info(dna_distinct_ur_df, so_categorization_df, dna_distinct_
     so_categorization_df['hasDistinctUR'] = so_categorization_df.apply(
         lambda row: assign_has_distinct_ur(row), axis=1)
 
+    # NR distinct URs == Nr ORFs with UR minus what overlaps and is not counted
+    # here there is only one set of ORFs that overlaps per trnascript
+    # this assertion might need to be adapted for other datasets
+    print('UR test', (so_categorization_df['NrDistinctURs'] == so_categorization_df.apply(
+        lambda x: x['nrOrfsWithUR'] if x['UROverlapWithinTrans'] == None else x['nrOrfsWithUR'] - len(x['UROverlapWithinTrans'][0]) + 1, axis=1)).all())
+
+    # disntinct UR numbers need to correspond!
     assert (so_categorization_df['hasDistinctUR'].apply(lambda x: sum([eval(ur_bool) for ur_bool in x.split(',')])) ==
             so_categorization_df['NrDistinctURs']).all()
 
+    # ORFs with distinct UR need to be same number as number of distinct URs, as each ORf is only considered for one UR!
     assert (so_categorization_df['OrfsWithDistinctURTrans'].apply(
         lambda x: len(x.split(',')) if isinstance(x, str) else 0) == so_categorization_df['NrDistinctURs']).all()
 
