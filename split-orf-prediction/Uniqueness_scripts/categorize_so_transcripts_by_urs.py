@@ -583,11 +583,21 @@ def get_overlapping_info(dna_distinct_ur_df, so_categorization_df, dna_distinct_
 
     return so_categorization_df
 
-    # column iwth unique ORF IDs:
-    # first ORF if overlap with first ORF, else if middle and last overlap: randomly select one of them?
-    # want to know which trans actually do have second and first ORF and which ones only first ORF
-    # if there is overlap as well as second ORF: would need to know which ORF overlaps with the first ORF
-    # to filter these cases out but leave the possibility for other ORFs to have ribo-cov and be counted...
+
+def write_genes_with_ur(so_categorization_df, outdir):
+    '''
+    write TXT file of gene names which can be found with ribocov method, ie genes that 
+    have a unqiue region
+    '''
+    so_categorization_df_has_ur = so_categorization_df[so_categorization_df['nrOrfsWithUR'] > 0]
+    pd.Series(so_categorization_df_has_ur['geneID'].unique()).to_csv(
+        os.path.join(outdir, 'genes_with_unique_region.txt'))
+
+# def write_categorization_table(so_categorization_df, outdir):
+#     '''
+#     write CSV file which indicates how many genes, transcripts, ORFs are there with
+#     categorization by unique regions
+#     '''
 
 
 def main(so_results, ur_path):
@@ -605,6 +615,8 @@ def main(so_results, ur_path):
             all_predicted_so_orfs, dna_ur_df, outdir)
     so_categorization_df = get_overlapping_info(
         dna_distinct_ur_df, so_categorization_df, dna_distinct_ur_df_trans)
+    write_genes_with_ur(so_categorization_df, outdir)
+    # write_categorization_table(so_categorization_df, outdir)
     so_categorization_df.to_csv(os.path.join(
         outdir, 'so_categorization_df.csv'))
 
