@@ -53,9 +53,10 @@ def main(ensembl_genomic_cds_coords_txt, output_bed_file, gtf_file):
 
     ensembl_genomic_cds_coords_df['Strand'] = ensembl_genomic_cds_coords_df['Strand'].apply(
         lambda x: change_strand(x))
-    
+
     # select transcripts from GTF
-    ensembl_genomic_cds_coords_df = ensembl_genomic_cds_coords_df[ensembl_genomic_cds_coords_df['Transcript stable ID'].isin(tids_keep)]
+    ensembl_genomic_cds_coords_df = ensembl_genomic_cds_coords_df[ensembl_genomic_cds_coords_df['Transcript stable ID'].isin(
+        tids_keep)]
 
     coordinate_string = ''
     for line in ensembl_genomic_cds_coords_df.index:
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     output_bed_file = args.output_bed_file
     gtf_file = args.gtf_file
 
-    gtf_file = '/projects/splitorfs/work/reference_files/filtered_Ens_reference_correct_29_09_25/Ensembl_110_filtered_equality_and_tsl1_2_correct_29_09_25.gtf'
-    ensembl_genomic_cds_coords_txt = '/projects/splitorfs/work/Riboseq/data/region_input/genomic/Ens_110_CDS_coordinates_genomic_all.txt'
+    # gtf_file = '/projects/splitorfs/work/reference_files/filtered_Ens_reference_correct_29_09_25/Ensembl_110_filtered_equality_and_tsl1_2_correct_29_09_25.gtf'
+    # ensembl_genomic_cds_coords_txt = '/projects/splitorfs/work/Riboseq/data/region_input/genomic/Ens_110_CDS_coordinates_genomic_all.txt'
 
     main(ensembl_genomic_cds_coords_txt, output_bed_file, gtf_file)
