@@ -11,7 +11,7 @@ from helper_functions_analysis_categorization import explode_so_df, \
     val_perc_first_middle_last_orfs_csv, count_orfs_by_position, \
     identify_overlapping_unique_regions, validated_so_per_sample_analysis, \
     add_sample_info_ur_df, split_orf_coverage_by_categorization, \
-    get_ribocov_interesting_candidate_genes
+    get_ribocov_interesting_candidate_genes, write_categorization_table
 from plotting import plot_val_so_sets, plot_three_category_pie, plot_sunburst_ribo_cov_orf, \
     plot_possible_ribocov_information_pie
 
@@ -143,6 +143,9 @@ def main(so_results, ribo_coverage_path, region_type, ur_path, outdir, so_catego
         validated_so_df, val_dna_overlapping_ur_df, outdir, nr_samples)
 
     get_ribocov_interesting_candidate_genes(
+        so_categorization_df, outdir, sample_type, region_type)
+
+    write_categorization_table(
         so_categorization_df, outdir, sample_type, region_type)
 
 

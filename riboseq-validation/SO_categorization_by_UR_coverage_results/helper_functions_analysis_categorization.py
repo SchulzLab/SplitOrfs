@@ -32,10 +32,12 @@ def validated_so_per_sample_analysis(ribo_coverage_path, all_predicted_so_orfs, 
     '''
     nr_samples = 0
     for empirical_Ribo_findings_file in glob.glob(f"{ribo_coverage_path}/*_unique_regions.csv"):
-        if (sample_type == 'control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
+        if (sample_type == 'HEK_control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
+            (sample_type == 'control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'SRR85' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'SRR10' in empirical_Ribo_findings_file) or \
-                (sample_type == 'NMD_inhibition' and 'HCT' and '12h' in empirical_Ribo_findings_file):
+                (sample_type == 'NMD_inhibition' and 'HCT' and '12h' in empirical_Ribo_findings_file) or \
+                (sample_type == 'all' and 'HCT' or 'SRR85' or 'SRR10' in empirical_Ribo_findings_file):
             all_predicted_so_orfs, so_categorization_df = read_riboseq_results(
                 empirical_Ribo_findings_file, all_predicted_so_orfs, so_categorization_df)
             nr_samples += 1
@@ -108,10 +110,12 @@ def filter_so_genes(ribo_coverage_path, sample_type):
     '''
     genes_above_20_list = []
     for empirical_Ribo_findings_file in glob.glob(f"{ribo_coverage_path}/**/Unique_DNA_Regions_genomic_*_chrom_sorted.bed", recursive=True):
-        if (sample_type == 'control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
+        if (sample_type == 'HEK_control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
+            (sample_type == 'control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'SRR85' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'SRR10' in empirical_Ribo_findings_file) or \
-                (sample_type == 'NMD_inhibition' and 'HCT' and '12h' in empirical_Ribo_findings_file):
+            (sample_type == 'NMD_inhibition' and 'HCT' and '12h' in empirical_Ribo_findings_file) or \
+                (sample_type == 'all' and 'HCT' or 'SRR85' or 'SRR10' in empirical_Ribo_findings_file):
             unique_regions_tpm_20_filtered = pd.read_csv(
                 empirical_Ribo_findings_file, header=None, index_col=None, sep='\t')
             unique_regions_tpm_20_filtered['gene_id'] = unique_regions_tpm_20_filtered.iloc[:, 3].apply(
@@ -384,6 +388,10 @@ def add_sample_info_ur_df(validated_so_df, val_dna_overlapping_ur_df, outdir, nr
 
 
 def unique_regions_present(row):
+    '''
+    If URInFirstORF and DistinctURInSecondORF used to define what type of UR 
+    transcript
+    '''
     if row['URInFirstORF']:
         if row['DistinctURInSecondORF'] > 0:
             return 'UR 1. & 2. ORF'
@@ -396,6 +404,9 @@ def unique_regions_present(row):
 
 
 def unique_regions_covered(row):
+    '''
+    covFirst and covSecond use to categorize the ribo-cov class of transcript
+    '''
     if row['covFirst']:
         if row['covSecond']:
             return '1.& 2. ORF'
@@ -408,6 +419,10 @@ def unique_regions_covered(row):
 
 
 def orf_has_coverage(row, covered_orfs):
+    '''
+    covFirst, Middle, Last and Second used together with OrfsWithDistinctURTrans
+    only count ribo-cov for ORFs that are counted as distinctUR!
+    '''
     if row['OrfID'] in covered_orfs and row['OrfID'] in row['OrfsWithDistinctURTrans']:
         if row['OrfPosition'] == 'first':
             row['covFirst'] = 1
@@ -479,7 +494,21 @@ def get_ribocov_interesting_candidate_genes(so_categorization_df, outdir, sample
         so_categorization_df_covered = so_categorization_df[
             so_categorization_df['UR covered'] != 'no UR cov']
 
-    so_categorization_df_covered['geneID'].to_csv(os.path.join(
+    pd.Series(so_categorization_df_covered['geneID'].unique()).to_csv(os.path.join(
         outdir, f'{sample_type}_{region_type}_genes_interesting_candidates.txt'), index=False, header=False)
     so_categorization_df_covered.to_csv(os.path.join(
         outdir, f'{sample_type}_{region_type}_interesting_candidates.csv'), index=False)
+
+
+def write_categorization_table(so_categorization_df, outdir, sample_type, region_type):
+    covered_first_orfs = sum(so_categorization_df['UR covered'] == '1. ORF')
+    covered_second_orfs = sum(so_categorization_df['UR covered'] == '2. ORF')
+    covered_first_and_second_orfs = sum(
+        so_categorization_df['UR covered'] == '1.& 2. ORF')
+    has_ur_but_not_covered_orfs = len(so_categorization_df[(so_categorization_df['UR covered'] == 'no UR cov') & (
+        so_categorization_df['ribocov_analyzable'] == 'ribocov analyzable')].index)
+
+    category_dict = {'covered_first_orfs': [covered_first_orfs], 'covered_second_orfs': [covered_second_orfs],
+                     'covered_first_and_second_orfs': [covered_first_and_second_orfs], 'has_ur_but_not_covered_orfs': [has_ur_but_not_covered_orfs]}
+    pd.DataFrame.from_dict(category_dict).to_csv(os.path.join(
+        outdir, f'{sample_type}_{region_type}_ribocov_category_table.csv'), index=False)
