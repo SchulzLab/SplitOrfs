@@ -62,10 +62,13 @@ def main(rbp_file, interesting_candidate_file, region_type):
     rbp_val_df = interesting_candidate_df.merge(
         rbp_df_filtered, on='geneID', how='right')
     rbp_val_df.to_csv(os.path.join(
-        outdir, region_type, 'rbp_val_df_rbpbase.csv'))
+        outdir, f'rbp_val_df_rbpbase_{region_type}.csv'))
 
-    rbp_val_df['geneID'].unique().tofile(os.path.join(
-        outdir, region_type, f'interesting_candidates_ribocov_{region_type}_rbp_genes_rbpbase.txt'), sep='\n')
+    genes_rbps = rbp_val_df['geneID'].unique()
+
+    with open(os.path.join(
+            outdir, f'interesting_candidates_ribocov_{region_type}_rbp_genes_rbpbase.txt'), 'w') as f:
+        f.write("\n".join(genes_rbps))
 
 
 if __name__ == '__main__':

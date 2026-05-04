@@ -21,5 +21,5 @@ python "${script_dir}"/rbp_anlaysis_rbp_base_gene_level.py \
 
 
 python "${script_dir}"/ri_nmd_union_intersection_rbps.py \
-    --ri_validated_rbp_file "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/NMD_genome/SO_coverage_categorization/rbpbase/interesting_candidates_ribocov_NMD_rbp_genes_rbpbase.txt" \
-    --nmd_validated_rbp_file "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/RI_genome/SO_coverage_categorization/rbpbase/interesting_candidates_ribocov_RI_rbp_genes_rbpbase.txt"
+    --nmd_validated_rbp_file "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/NMD_genome/SO_coverage_categorization/rbpbase/interesting_candidates_ribocov_NMD_rbp_genes_rbpbase.txt" \
+    --ri_validated_rbp_file "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/RI_genome/SO_coverage_categorization/rbpbase/interesting_candidates_ribocov_RI_rbp_genes_rbpbase.txt"
