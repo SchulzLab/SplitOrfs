@@ -12,33 +12,27 @@ requirements:
   build:
     - bash
     - coreutils
-    # - bioconductor-flowcore
+  host:
+    - r-base 4.5.*
+    - python 3.11.*
   run:
-    # - bioconductor-flowcore
-    - bash
-    - python  # Only if your scripts call Python
+    - r-base >=4.5
     - conda-verify
     - blast
+    - htseq
     - samtools
-    - ca-certificates
-    - openssl
     - bedtools
     - mummer
-    - python >=3.7
+    - python >=3.11,<3.12
     - biopython
     - pybedtools
     - diamond
     - matplotlib
     - seaborn
     - polars
-    - certifi
-    - ipykernel
     - gffread
-    - conda-lock
     - jq
-    - r-base
-    - r-essentials
-    # - bioconductor-cmapr
+    - bioconductor-cmapr
     - r-ggplot2
     - r-geomtextpath
     - r-tidyr
@@ -52,12 +46,14 @@ requirements:
     - r-readr
     - r-rmarkdown
     - r-glue
-    - r-reticulate
     - r-upsetr
     - r-knitr
     - r-lemon
     - r-data.table
     - r-kableextra
+    - star
+    - rnanorm
+    - scikit-learn
 
 about:
   home: https://github.com/ChrissiKalk97/SplitORF_pipeline/tree/bioconda-splitorf-pipeline/split-orf-prediction
@@ -67,4 +63,7 @@ about:
 extra:
   recipe-maintainers:
     - ChrissiKalk97
+  channels:
+    - conda-forge
+    - bioconda
 

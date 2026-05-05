@@ -10,3 +10,11 @@ cp -r $SRC_DIR/split-orf-prediction/SplitOrfs-master $PREFIX/bin/SplitOrfs-maste
 cp -r $SRC_DIR/split-orf-prediction/Uniqueness_scripts $PREFIX/bin/Uniqueness_scripts
 cp $SRC_DIR/split-orf-prediction/*.Rmd $PREFIX/bin/
 chmod +x $PREFIX/bin/split-orf-prediction
+
+mkdir -p $PREFIX/bin/ribo_cov_scripts
+cp $SRC_DIR/riboseq-validation/run_Riboseq_validation_pipeline_json_input.sh $PREFIX/bin/ribo-cov
+cp $SRC_DIR/riboseq-validation/ribo_cov_scripts/*.py $PREFIX/bin/ribo_cov_scripts
+cp $SRC_DIR/riboseq-validation/ribo_cov_scripts/*.R $PREFIX/bin/ribo_cov_scripts
+cp $SRC_DIR/riboseq-validation/ribo_cov_scripts/*.Rmd $PREFIX/bin/ribo_cov_scripts
+cp $SRC_DIR/riboseq-validation/ribo_cov_scripts/*.sh $PREFIX/bin/ribo_cov_scripts
+chmod +x $PREFIX/bin/ribo-cov
