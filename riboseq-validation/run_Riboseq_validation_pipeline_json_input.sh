@@ -27,7 +27,7 @@ tmp_dir=$(jq -r '.tmp_dir' "$CONFIG")
 report=$(jq -r '.report // empty' "$CONFIG")
 duplicated=$(jq -r '.duplicated' "$CONFIG")
 
-script_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+script_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"/ribo_cov_scripts
 
 # requirement: BAM files need to be named: inputname_bam_ending!!!!!
 

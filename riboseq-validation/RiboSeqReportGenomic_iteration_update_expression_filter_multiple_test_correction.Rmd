@@ -11,7 +11,7 @@ The following document is a report on the alignment of multiple Ribo-Seq dataset
 
 # Calculate the null distribution for the unique Split-ORF regions
 
-```{r}
+```{r, include = FALSE}
 args <- params[[1]]
 path <- args[[1]]
 SO_pipe_path <- args[[2]]
@@ -19,12 +19,12 @@ unique_region_type <- args[[3]]
 script_path <- args[[4]]
 ```
 
-```{r, echo=FALSE, libraries, message=FALSE}
+```{r, echo=FALSE, libraries, message=FALSE, , include = FALSE}
 source(file.path(script_path, "helper_functions_Riboseq_report_tpm_filter_multitest.R"))
 ```
 
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE, include = FALSE}
 random_ranked_dfs <- calculate_background_rank_counts(unique_region_type, path)
 names(random_ranked_dfs)
 ```
@@ -32,36 +32,36 @@ names(random_ranked_dfs)
 
 
 Load Riboseq reads intersectin with unique regions.
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, include = FALSE}
 list_dataframes <- get_intersect_files(unique_region_type, path)
 ```
 
 
 
-```{r}
+```{r, include = FALSE}
 intersect_frames_list <- get_relative_ur_intersect_counts(list_dataframes)
 ```
 
-```{r}
+```{r, include = FALSE}
 counts_and_names_list <- calculate_fdr_urs(intersect_frames_list, random_ranked_dfs)
 ```
 
 
 
 Nr of distinct Split-ORFs with significantly higher Riboseq coverage than the 3' UTR background.
-```{r, message = FALSE}
+```{r, message = FALSE, echo = FALSE}
 print_unique_region_above_t(counts_and_names_list$counts_above_t_relative_length, list_dataframes)
 ```
 
 Nr of distinct genomic Unique regions with significantly higher Riboseq coverage than the 3' UTR background.
-```{r, message = FALSE}
+```{r, message = FALSE, echo = FALSE}
 print_unique_region_above_t(counts_and_names_list$counts_above_t_relative_length_genomic, list_dataframes)
 ```
 
 
 
 The following table shows the top five unique regions with a relative count above the threshold (if available).
-```{r, message = FALSE}
+```{r, message = FALSE, include = FALSE}
 get_top_5_unique_regions(counts_and_names_list$genomic_ur_dfs)
 ```
 
@@ -176,7 +176,7 @@ dev.off()
 ```
 
 
-```{r, message = FALSE}
+```{r, message = FALSE, echo = FALSE}
 counts_and_names_list$ur_dfs <- get_print_ORF_ranks(SO_pipe_path, counts_and_names_list$ur_dfs)
 names(counts_and_names_list$ur_dfs) <- names(list_dataframes)
 names(counts_and_names_list$genomic_ur_dfs) <- names(list_dataframes)
@@ -185,7 +185,7 @@ write_csv(counts_and_names_list$genomic_ur_dfs, upsetlist_genomic, counts_and_na
 
 
 Print the unique regions where at least 2 unique regions on the same transcript were found.
-```{r}
+```{r, echo = FALSE}
 Split_ORFs_validation(counts_and_names_list$ur_dfs, upsetlist, path)
 ```
 
