@@ -72,9 +72,9 @@ for the CDS coordinates Attributes: Structures: Chromosome/scaffold name, Gene s
 
 
 Protein coding transcript (4) and protein sequences (1) as well as CDS coordinates (6) were filtered for transcript support level 1 or 2 or the presence of their exact intron chain in the RefSeq annotation (v.GCF_000001405.40-RS_2023_10) with custom scripts (filter_Ensembl_GTF.sh, Filter_prot_coding_reference.sh). The filtered CDS coordinates were combined with the contamination coordiantes into a single BED file using the remodelling script: generate_CDS_contamination_subtraction_coordinates.sh.<br>
-The input files are specified via a JSON file and the Input data should be located in the same directory. <br>
+
 The Split-ORF pipeline creates an output folder with a timestamp of the run at a user specified location. All results as well as intermediate result files are written into this output directory. <br>
-The final output files are a TSV file of the predicted Split-ORFs, BED files of the genomic coordinates of the unique Split-ORF regions and two HTML reports about the predicted Split-ORF candidates and about their unique regions. The steps of the Split-ORF pipeline produce intermediate results which are also included in the output of the pipeline.
+The final output files are a TSV file of the predicted Split-ORFs, BED files of the genomic coordinates of the unique Split-ORF regions and two HTML reports about the predicted Split-ORF candidates and about their unique regions. The steps of the Split-ORF pipeline produce intermediate results which are also included in the output of the pipeline, but these files are not relevant as a result.
 
 
 
@@ -154,9 +154,9 @@ Example Input files are supplied in the riboseq-validation folder, e.g. riboseq_
     and reads are already deduplicated
 }
 ```
-The Ribo-seq data can make use of UMIs or not. If UMI containing Ribo-seq data is used, it is required to be already mapped to the genome (using the correct version!) and deduplicated. If the deduplicated reads are used then the "duplicated" flag should be set to false, otherwise it should be set to false. The ribo-cov module is only tested using STAR as the aligner, so it is recommended to use it for the alignment. Please note that if supplying BAM files, these need to be placed in a directory file_dir="${output_star}/${input_name}_genome/subdirectory". The subdirectory name can be chosen freely. This is required as the when the mapping is performed, the BAM files will be placed in subdirectories of the folder ${output_star}/${input_name}_genome.
+The Ribo-seq data can make use of UMIs or not. If UMI containing Ribo-seq data is used, it is required to be already mapped to the genome (using the correct version!) and deduplicated. If the deduplicated reads are used then the "duplicated" flag should be set to false, otherwise it should be set to false. The ribo-cov module is only tested using STAR as the aligner, so it is recommended to use it for the alignment. Please note that if supplying BAM files, these need to be placed in a directory file_dir=output_star/input_name_genome/subdirectory". The subdirectory name can be chosen freely. This is required as the when the mapping is performed, the BAM files will be placed in subdirectories of the folder output_star/input_name_genome.
 
-The results will be placed in a folder: ${output_star}/${region_type}_genome.
+The results will be placed in a folder: output_star/region_type_genome.
 
 The distinction between region_type and input_name is done in order to enable the reuse of BAM files, if the same Ribo-seq data is used for different runs of the Split-ORF pipeline. In our example we use it for the NMD and the RI transcripts. We first run it on the NMD transcripts and then reuse the BAM files to circumvent redundant mapping steps by setting input_name to NMD when the region_type is RI for the RI run and the BAM ending to _NMD_sorted.bam. The output_star directory is set to the parent directory of both NMD_genome and RI_genome, which are created by the ribo-cov module.
 
