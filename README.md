@@ -12,7 +12,7 @@ We are currently working on a bioconda package for the Split-ORF pipeline. The p
 
 ## Usage 
 
-The Split-ORF pipeline has two modules: **split-orf-prediction** and **ribo-cov**. The **split-orf-prediction** module allows the prediction of Split-ORFs for a user supplied set of transcripts together with their unique regions, while the **ribo-cov** module performs testing for significant Ribo-seq coverage in the Split-ORF unique regions of the split-orf-prediction module based on user supplied Ribo-seq data.
+The Split-ORF pipeline has two modules: **split-orf-prediction** and **ribo-cov**. The **split-orf-prediction** module allows the prediction of Split-ORFs for a user supplied set of transcripts together with their unique regions, while the **ribo-cov** module performs testing for significant Ribo-seq coverage in the Split-ORF unique regions of the split-orf-prediction module based on user supplied Ribo-seq data.<br>
 The Split-ORF pipeline is implemented in a modular fashion within the bash framework. The different modules of the pipeline are written in python (v.3.11) and the reports are generated with R (v.4.1.2) with the Rmarkdown framework.
 
 To install the Split-ORF pipeline conda package run the following commands:
@@ -29,7 +29,8 @@ When the respective conda environment is acitvated, then the **split-orf-predict
 ## Input Files split-orf-prediction
 The input files are defined in JSON files and should all be in the same folder. Example JSON files of the inputs are supplied in the split-orf-prediction folder: e.g. split_orf_pipeline_input.json.
 
-The following arguments need to be set within the JSON file:
+The following arguments need to be set within the JSON file:<br>
+```json
 {
     "file_path": path where the input files are located (all need to be in the same folder) (1),
     "proteins": Reference protein sequences (amino acid sequences, FASTA) (2),
@@ -43,20 +44,20 @@ The following arguments need to be set within the JSON file:
     "cds_coordinate_bed": CDS and contamination coordinates to subtract from Split-ORF unique regions (Chromosome/scaffold name, Gene stable ID,  Transcript stable ID, Genomic coding start, Genomic coding end, Strand) (8),
     "output_dir": directory where outout files should be written to (9)
 }
-
+```
 
 ### How to get Input files
-All of these input files were downloaded from Ensembl Biomart (Ensembl Genes 110, GRCh38p.14) using the following mart options and transformed with the respective custom scripts which can be found in the Input_scripts folder of the Split-Orfs github repository: 
-(2) Attributes: Sequences: Peptide, header information: Gene stable ID, Transcript stable ID, Filters: Gene: Transcript type: protein_coding.
-(3) Attributes: Sequences: cDNA sequences, header information: Gene stable ID, Transcript stable ID, Filters: Gene: Transcript type: nonsense_mediated_decay or retained_intron. 
-(4) Attributes: Features: Gene: Gene stable ID Transcript stable ID; Protein Domains and Families: Pfam ID, Pfam start, Pfam end. Remodelling scripts: convert_ensembl_output_to_bed.py.
-(5) Attributes: Sequences: cDNA sequences, header information: Gene stable ID, Transcript stable ID, Filters: Gene: Transcript type: protein_coding.
-(6) Attributes: Structures: Gene stable ID, Transcript stable ID, Exon region start, Exon region end, Transcript start, Transcript End, Strand. No filters were selected. Downloading all exonic positions includes those of the transcripts of interest.
-(8) for the contaminations: Attributes: Structures: Chromosome/scaffold name, Gene stable ID, Transcript stable ID, Exon region start, Exon region end, Strand. Filter: Gene: the respective contaminating RNA (snoRNA, miRNA, snRNA, scaRNA, rRNA, rRNA_psuedogene, Mt_tRNA, Mt_rRNA).
-for the CDS coordinates Attributes: Structures: Chromosome/scaffold name, Gene stable ID,  Transcript stable ID, Genomic coding start, Genomic coding end, Strand.  
-Protein coding transcript (5) and protein sequences (2) as well as CDS coordinates (8) were filtered for transcript support level 1 or 2 or the presence of their exact intron chain in the RefSeq annotation (v.GCF_000001405.40-RS_2023_10) with custom scripts (filter_Ensembl_GTF.sh, Filter_prot_coding_reference.sh). The filtered CDS coordinates were combined with the contamination coordiantes into a single BED file using the remodelling script: generate_CDS_contamination_subtraction_coordinates.sh.
-The input files are specified via a JSON file and the Input data should be located in the same directory. 
-The Split-ORF pipeline creates an output folder with a timestamp of the run at a user specified location. All results as well as intermediate result files are written into this output directory. 
+All of these input files were downloaded from Ensembl Biomart (Ensembl Genes 110, GRCh38p.14) using the following mart options and transformed with the respective custom scripts which can be found in the Input_scripts folder of the Split-Orfs github repository: <br>
+(2) Attributes: Sequences: Peptide, header information: Gene stable ID, Transcript stable ID, Filters: Gene: Transcript type: protein_coding.<br>
+(3) Attributes: Sequences: cDNA sequences, header information: Gene stable ID, Transcript stable ID, Filters: Gene: Transcript type: nonsense_mediated_decay or retained_intron. <br>
+(4) Attributes: Features: Gene: Gene stable ID Transcript stable ID; Protein Domains and Families: Pfam ID, Pfam start, Pfam end. Remodelling scripts: convert_ensembl_output_to_bed.py.<br>
+(5) Attributes: Sequences: cDNA sequences, header information: Gene stable ID, Transcript stable ID, Filters: Gene: Transcript type: protein_coding.<br>
+(6) Attributes: Structures: Gene stable ID, Transcript stable ID, Exon region start, Exon region end, Transcript start, Transcript End, Strand. No filters were selected. Downloading all exonic positions includes those of the transcripts of interest.<br>
+(8) for the contaminations: Attributes: Structures: Chromosome/scaffold name, Gene stable ID, Transcript stable ID, Exon region start, Exon region end, Strand. Filter: Gene: the respective contaminating RNA (snoRNA, miRNA, snRNA, scaRNA, rRNA, rRNA_psuedogene, Mt_tRNA, Mt_rRNA).<br>
+for the CDS coordinates Attributes: Structures: Chromosome/scaffold name, Gene stable ID,  Transcript stable ID, Genomic coding start, Genomic coding end, Strand.  <br>
+Protein coding transcript (5) and protein sequences (2) as well as CDS coordinates (8) were filtered for transcript support level 1 or 2 or the presence of their exact intron chain in the RefSeq annotation (v.GCF_000001405.40-RS_2023_10) with custom scripts (filter_Ensembl_GTF.sh, Filter_prot_coding_reference.sh). The filtered CDS coordinates were combined with the contamination coordiantes into a single BED file using the remodelling script: generate_CDS_contamination_subtraction_coordinates.sh.<br>
+The input files are specified via a JSON file and the Input data should be located in the same directory. <br>
+The Split-ORF pipeline creates an output folder with a timestamp of the run at a user specified location. All results as well as intermediate result files are written into this output directory. <br>
 The final output files are a TSV file of the predicted Split-ORFs, BED files of the genomic coordinates of the unique Split-ORF regions and two HTML reports about the predicted Split-ORF candidates and about their unique regions. The steps of the Split-ORF pipeline produce intermediate results which are also included in the output of the pipeline.
 
 
