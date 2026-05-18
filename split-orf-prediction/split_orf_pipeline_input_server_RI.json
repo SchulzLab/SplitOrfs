@@ -1,0 +1,11 @@
+{
+    "file_path": "/home/ckalk/tools/SplitORF_pipeline/Input2023",
+    "proteins": "TSL_eq_filtered_29_09_25/protein_coding_peptide_sequences_tsl_eq_filtered_29_09_25.fa",
+    "transcripts": "RI_transcripts_CDNA.fa",
+    "annotation": "ENSEMBLhuman110PFAMformat.bed",
+    "reference_transcripts": "TSL_eq_filtered_29_09_25/protein_coding_transcript_and_gene_cDNA_tsl_eq_filtered_29_09_25.fa",
+    "exon_positions": "ExonCoordsWIthChr110.bed",
+    "align_method": "blast",
+    "cds_coordinate_bed": "CDS_110_filtered_with_contaminants.bed",
+    "output_dir": "/projects/splitorfs/work/split-orf-prediction/Output"
+}

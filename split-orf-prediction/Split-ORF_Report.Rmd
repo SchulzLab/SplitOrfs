@@ -1,0 +1,383 @@
+---
+title: "Split-ORF Report"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+params:
+    args: myarg
+---
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+
+```{r imports,echo=FALSE}
+# List of required packages
+packages <- c(
+  "seqinr",
+  "ggplot2",
+  "geomtextpath",
+  "tidyr",
+  "stringr",
+  "dplyr",
+  "gridExtra",
+  "svglite"
+)
+
+# Load each package safely, fail if missing
+for (pkg in packages) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop(paste0("Package '", pkg, "' is not installed in this environment."))
+  }
+  library(pkg, character.only = TRUE)
+}
+```
+This report shows a number of summary statistics of the a result file obtained from the [Split-ORFs](https://github.com/ChrissiKalk97/SplitORF_pipeline.git) software.
+
+
+## Overview of the valid alignment results:
+
+
+```{r summary stats,echo=FALSE}
+file1 = params[[1]][[1]] # valid protein orf pairs
+file2 = params[[1]][[2]] # unique protein orf pairs
+file3 = params[[1]][[3]] # transcripts
+
+
+file_dir=dirname(file1)
+
+transcripts = read.fasta(file3)
+
+# read in all the Ensembl IDs with transcript support level annotation
+validIds=read.table(file1,header=T)
+
+unique_split_orfs = read.table(file2,header=T)
+
+NumTrans = length(transcripts)
+validTrans = length(unique(unique_split_orfs$OrfTransID))
+annots=nrow(unique_split_orfs)-sum(is.na(unique_split_orfs$ORF.DomainAnnot))
+uniqGenes = length(unique(unique_split_orfs$geneID))
+
+#create plotting dataframe
+legends=c("Number of transcripts",
+          "Transcripts with >= 2 valid ORFs",
+          "Transcripts with >= 1 PFAM domain overlap",
+          "Number of unique Genes")
+
+values=c(NumTrans,validTrans,annots,uniqGenes)
+plotData = data.frame(Entry=legends,Values=values)
+
+ knitr::kable(plotData) %>% 
+   kableExtra::kable_styling(full_width = FALSE)
+
+```
+
+## Histogramm of matching ORFs per Split-ORF transcript:
+
+```{r hist1, echo=FALSE, fig.width=4, fig.height=4}
+p <- ggplot(unique_split_orfs, aes(x=NumOrfs)) + 
+  geom_histogram(binwidth=0.1) +
+  geom_textvline(label = paste("mean number of ORFs", round(mean(unique_split_orfs$NumOrfs), 3)), xintercept = mean(unique_split_orfs$NumOrfs), vjust = 1.3) +
+  labs(title="Number of ORFs per Split-ORF transcript", x="Number of ORFs", y="Frequency") +
+  theme(panel.background = element_blank())
+
+dir.create(paste(file_dir, "SO_report_plots", sep = "/"))
+ggsave(paste(file_dir, "SO_report_plots", "Nr_ORFs.svg", sep = "/"), p, width = 4, height = 4, units = "in")
+
+p
+```
+
+## Histogramm of NMD-protein pairs
+
+```{r hist2, echo=FALSE}
+require(dplyr)
+p <- table(unique_split_orfs$geneID) %>% as.data.frame %>% ggplot(aes(x = Freq)) + geom_histogram(binwidth=0.5) +
+  geom_textvline(label = paste("mean SO transcripts per gene", round(mean(table(unique_split_orfs$geneID)), 3)), xintercept = mean(table(unique_split_orfs$geneID)), vjust = 1.3) +
+  xlim(c(0,20)) +
+  labs(title="Number of Split-ORF transcripts per gene", x="Split-ORF transcripts per gene", y="Frequency") +
+  theme(panel.background = element_blank())
+
+ggsave(paste(file_dir, "SO_report_plots", "Nr_SO_transcripts_per_gene.svg", sep = "/"), p, width = 6, height = 4, units = "in")
+
+p
+```
+
+## Top 20 genes, that have the most transcripts with >=2 ORFs
+``` {r top pairs,echo=FALSE}
+
+df=data.frame(table(unique_split_orfs$geneID))
+names(df)=c("geneIDs","frequency")
+
+    
+ knitr::kable(head(df[order(df$frequency,decreasing=T),], 10)) %>% 
+   kableExtra::kable_styling(full_width = FALSE)
+```
+
+
+## Histogram of Split-ORF lengths
+
+Plotting the length of Split-ORFs in bp and AA. Note that the minimal length of an ORF is 120 base pairs. 
+
+```{r orfLengths, echo=FALSE, include=FALSE, fig.width=8, fig.height=4}
+require(gridExtra)
+
+orf_lengths = strsplit(as.character(unique_split_orfs$OrfLengths),",",fixed=T)
+
+plot1 <- qplot(as.numeric(unlist(orf_lengths))) +
+  xlim(0,min(5000, length(unlist(orf_lengths)))) +
+  labs(title="Nucleotide lengths of all SOs", x="ORF length", y="Frequency") +
+  theme(panel.background = element_blank())
+
+
+plot2 <- qplot(sapply(orf_lengths,function(x){return(mean(as.numeric(x)))})) +
+  xlim(0,min(5000, length(unlist(orf_lengths)))) +
+  labs(title="Mean ORF length per SO trans", x="ORF length", y="Frequency") +
+  theme(panel.background = element_blank())
+
+
+
+svglite(
+  file = paste(file_dir, "SO_report_plots", "SO_length.svg", sep = "/"),
+  width = 8,
+  height = 4
+)
+
+grid.arrange(plot1, plot2, ncol=2)
+
+dev.off()
+```
+
+
+```{r orflengths_plots, echo=FALSE, fig.width=8, fig.height=4}
+grid.arrange(plot1, plot2, ncol = 2)
+```
+
+
+```{r, echo=FALSE}
+m <- matrix(c(round(mean(as.numeric(unlist(orf_lengths, 5)))),
+              mean(sapply(orf_lengths, function(x){return(mean(as.numeric(x)))}))), ncol = 2, nrow = 1)
+mean_ORF_lengths <- data.frame(m)
+rownames(mean_ORF_lengths) = "mean Split-ORF length"
+colnames(mean_ORF_lengths) = c("mean overall Split-ORF length", "mean Split-ORF length per gene")
+
+knitr::kable(mean_ORF_lengths) %>% 
+   kableExtra::kable_styling(full_width = FALSE)
+# print(mean_ORF_lengths)
+```
+
+```{r, echo=FALSE}
+m <- matrix(c(round(mean(as.numeric(unlist(orf_lengths, 5)))), mean(sapply(orf_lengths,function(x){return(mean(as.numeric(x)))}))), ncol = 2, nrow = 1)
+mean_ORF_lengths <- data.frame(m/3)
+rownames(mean_ORF_lengths) = "mean Split-ORF length in AA"
+colnames(mean_ORF_lengths) = c("mean overall Split-ORF length in AA", "mean Split-ORF length per gene in AA")
+
+knitr::kable(mean_ORF_lengths) %>% 
+   kableExtra::kable_styling(full_width = FALSE)
+```
+
+```{r orfLengthsAA, echo=FALSE, fig.width=8, fig.height=4, include=FALSE}
+plot1 <- qplot(as.numeric(unlist(orf_lengths))/3, xlim = c(0,2000)) +
+  labs(title="AA lengths of all Split-ORFs", x="ORF length", y="Frequency") +
+  theme(panel.background = element_blank())
+
+
+plot2 <- qplot(sapply(orf_lengths,function(x){return(mean(as.numeric(x))/3)}), xlim = c(0,2000)) +
+  labs(title="Mean AA ORF length per SO trans", x="ORF length", y="Frequency") +
+  theme(panel.background = element_blank())
+
+
+
+svglite(
+  file = paste(file_dir, "SO_report_plots", "SO_AA_length.svg", sep = "/"),
+  width = 8,
+  height = 4
+)
+
+grid.arrange(plot1, plot2, ncol=2)
+
+dev.off()
+```
+
+```{r orfLengthsAA_plots, echo=FALSE, fig.width=8, fig.height=4}
+grid.arrange(plot1, plot2, ncol = 2)
+```
+
+
+# Positions of the Split-ORFs inside of the transcripts
+
+```{r trans_length, echo=FALSE, include=FALSE}
+# get transcript lengths
+t_lengths <- unlist(lapply(transcripts, length))
+tids <- str_split_fixed(names(t_lengths), "\\|", 2)[,2]
+t_length_df <- data.frame(OrfTransID = tids, transcript_lengths = unname(t_lengths))
+unique_split_orfs <- merge(unique_split_orfs, t_length_df)
+```
+
+```{r orf_positions, echo=FALSE, include=FALSE}
+#get ORF start and end positions
+df_expanded <- separate_rows(unique_split_orfs, OrfPos, sep = ",")
+ORF_start_end <- str_split_fixed(df_expanded$OrfPos, '-', 2)
+df_expanded$ORF_start <- as.numeric(ORF_start_end[,1])
+df_expanded$ORF_end <- as.numeric(ORF_start_end[,2])
+#and ORF number inside of the transcript (according to start position)
+df_expanded <- df_expanded %>%group_by(OrfTransID) %>%
+  arrange(ORF_start) %>%
+  mutate(Cumulative_ORF_Count = row_number())%>% 
+  arrange(OrfTransID)
+
+#get percentage of start and stop position
+df_expanded$ORF_start_percent <- df_expanded$ORF_start/df_expanded$transcript_lengths
+df_expanded$ORF_end_percent <- df_expanded$ORF_end/df_expanded$transcript_lengths
+```
+
+```{r orf_numbers, echo=FALSE, include=FALSE}
+df_expanded$orf_number = "middle"
+df_expanded[df_expanded$Cumulative_ORF_Count == 1,]$orf_number = "first"
+max_ORF_rows <- df_expanded %>% group_by(OrfTransID) %>% slice(which.max(Cumulative_ORF_Count))
+df_expanded[df_expanded$OrfPos %in% max_ORF_rows$OrfPos, ]$orf_number = "last"
+```
+
+```{r, echo=FALSE, fig.width=6, fig.height=4}
+p <- ggplot(df_expanded, aes(x = ORF_start_percent, fill = factor(orf_number))) +
+  geom_histogram(position = "identity", alpha = 0.8) +
+  scale_fill_hue(l=45) +
+  scale_fill_manual(values = c('#75C1C5', '#CC79A7', '#FFC500')) +
+  labs(x = "Start positions of ORFs inside of Split-ORF transcript in %", y = "Frequency", fill = "ORF position") +
+  theme(panel.background = element_blank())
+
+
+ggsave(paste(file_dir, "SO_report_plots", "ORF_start_positions.svg", sep = "/"), p, width = 6, height = 4, units = "in")
+
+p
+```
+
+```{r, echo=FALSE, fig.width=6, fig.height=4}
+p <- ggplot(df_expanded, aes(x = ORF_end_percent, fill = factor(orf_number))) +
+  geom_histogram(position = "identity", alpha = 0.8) +
+  scale_fill_hue(l=45)+
+  scale_fill_manual(values = c('#75C1C5', '#CC79A7', '#FFC500')) +
+  labs(x = "End positions of ORFs inside of Split-ORF transcript in %", y = "Frequency", fill = "ORF position") +
+  theme(panel.background = element_blank())
+
+ggsave(paste(file_dir, "SO_report_plots", "ORF_end_positions.svg", sep = "/"), p, width = 6, height = 4, units = "in")
+
+p
+```
+
+
+
+
+
+## PFAM domain annotations
+
+PFAM domain annotations were obtained for all protein coding genes. Here we show how often more than one ORF overlaps an annotated PFAM domain in the alignment region. For example a value of two means, that two distinct ORFs made from the transcript aligned to regions in the protein that overlapped PFAM annotations.
+
+```{r orfAnnots, echo=FALSE}
+ p <- ggplot(unique_split_orfs, aes(x= NumORFAnnot)) + 
+  xlim(-1, 4) +
+  ylim(0, 4500)+
+  geom_histogram() +
+  theme(panel.background = element_blank()) +
+  labs(title="Number of PFAM annotations per Split-ORF transcript", x="Number of ORFs overlapping annotation per SO transcript", y="Frequency")
+
+ggsave(paste(file_dir, "SO_report_plots", "Nr_PFAM_annotations.svg", sep = "/"), p, width = 6, height = 4, units = "in")
+
+p
+```
+
+## Top 20 genes that have the most transcripts ORFs with annotations per transcript
+
+These are the top 20 genes that have the most transcripts ORFs with annotations per transcript. The column ORF.DomainAnnot shows the PFAM ID of one of the domains overlapping the corresponding ORF. Interestingly often several ORFs cover the same domain in some of the proteins.
+
+``` {r top annotated ORFs,echo=FALSE}
+    
+orf_annoations_show <- head(unique_split_orfs[order(unique_split_orfs$NumORFAnnot,decreasing=T),c("geneID","OrfTransID","NumORFAnnot","ORF.DomainAnnot")],10)
+
+knitr::kable(orf_annoations_show) %>% 
+   kableExtra::kable_styling(full_width = FALSE)
+    
+```
+
+## Domain analysis
+
+`r length(unique(names(table(unlist(unique_split_orfs$ORF.DomainAnnot)))))` of different Domain annotations found in Split-ORFs.
+
+Analysis of the type of domains that are part of Split-ORFs per gene, this avoids counting same domains from similar transcripts of the same gene.
+
+```{r domains_per_gene, include=FALSE}
+# get one row per PFAM annotation
+# collapse over genes
+
+unique_split_orfs_no_na <- na.omit(unique_split_orfs)
+different_domains_per_gene <- unique_split_orfs  %>%
+  separate_rows(ORF.DomainAnnot, sep = ",") %>%
+  group_by(geneID) %>%
+  summarize(different_domains = n_distinct(ORF.DomainAnnot, na.rm = TRUE))
+```
+
+
+``` {r stats annotations Gene, echo=FALSE}
+p <- ggplot(different_domains_per_gene, aes(x = different_domains)) + 
+      xlim(-1, 4) +
+      geom_histogram() +
+      theme(panel.background = element_blank()) +
+      labs(title="Number of different PFAM domains in SOs per gene", x="Number of different PFAM domains", y="Number of SO genes")
+
+ggsave(paste(file_dir, "SO_report_plots", "Nr_PFAM_annotations_per_SO_gene.svg", sep = "/"), p, width = 6, height = 4, units = "in")
+
+p
+```
+
+The top 10 most frequent domains found in Split-ORF genes.
+``` {r plot more results Gene,echo=FALSE}
+# get one row per PFAM annotation
+unique_sos_explode_df <- unique_split_orfs_no_na  %>%
+  separate_rows(ORF.DomainAnnot, sep = ",") 
+
+# remove duplicate PFAM annos per gene
+unique_sos_explode_df_per_gene <- unique_sos_explode_df[!duplicated(unique_sos_explode_df[,c("geneID", "ORF.DomainAnnot")]),]
+
+domain_freq_table_sorted <- sort(table(unique_sos_explode_df_per_gene$ORF.DomainAnnot), decreasing = TRUE)
+domain_freq_table_sorted_df <- as.data.frame(domain_freq_table_sorted)
+colnames(domain_freq_table_sorted_df) <- c("PFAM", "Freq")
+
+
+knitr::kable(head(domain_freq_table_sorted_df, 10)) %>% 
+   kableExtra::kable_styling(full_width = FALSE)
+```
+
+
+Analysis of the type of domains that are part of Split-ORFs looking at all transcripts, this incorporates also the case that two transcripts may come from the same gene. Only PFAM domains that are present in at least one Split-ORF transcript are considered.
+
+``` {r stats annotations, echo=FALSE}
+# need to keep the NA as also wnat to know when there are no PFAM domains
+unique_sos_explode_df <- unique_split_orfs  %>%
+  separate_rows(ORF.DomainAnnot, sep = ",") 
+
+domains_per_so_transcript <- unique_sos_explode_df %>%
+                            group_by(OrfTransID) %>%
+                            summarize(different_domains = n_distinct(ORF.DomainAnnot, na.rm = TRUE))
+
+p <- ggplot(domains_per_so_transcript, aes(x = different_domains)) + 
+  xlim(-1, 4) +
+  geom_histogram() + 
+  theme(panel.background = element_blank()) +
+  labs(title="Number of different PFAM domains in SOs per transcript", x="Number of PFAM domain occurrences", y="Frequency")
+
+ggsave(paste(file_dir, "SO_report_plots", "Nr_PFAM_annotations_per_SO_transcript.svg", sep = "/"), p, width = 6, height = 4, units = "in")
+
+p
+```
+
+
+Show the top 50 most frequent domains found in Split-ORFs (counting all transcripts).
+``` {r plot more results,echo=FALSE}
+domain_freq_table_sorted <- sort(table(unique_sos_explode_df$ORF.DomainAnnot), decreasing = TRUE)
+domain_freq_table_sorted_df <- as.data.frame(domain_freq_table_sorted)
+colnames(domain_freq_table_sorted_df) <- c("PFAM", "Freq")
+
+knitr::kable(head(domain_freq_table_sorted_df, 10)) %>% 
+   kableExtra::kable_styling(full_width = FALSE)
+
+```
+
+This document was created with R Markdown and the Knit package. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.

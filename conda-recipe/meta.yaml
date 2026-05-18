@@ -1,0 +1,69 @@
+package:
+  name: split-orf-pipeline
+  version: "0.2.0"
+
+source:
+  path: ..  # Points to the root of your repo
+
+build:
+  noarch: generic  # Because it's a Bash script, no architecture-specific build
+
+requirements:
+  build:
+    - bash
+    - coreutils
+  host:
+    - r-base 4.5.*
+    - python 3.11.*
+  run:
+    - r-base >=4.5
+    - conda-verify
+    - blast
+    - htseq
+    - samtools
+    - bedtools
+    - mummer
+    - python >=3.11,<3.12
+    - biopython
+    - pybedtools
+    - diamond
+    - matplotlib
+    - seaborn
+    - polars
+    - gffread
+    - jq
+    - bioconductor-cmapr
+    - r-ggplot2
+    - r-geomtextpath
+    - r-tidyr
+    - r-stringr
+    - r-dplyr
+    - r-seqinr
+    - r-gridextra
+    - r-svglite
+    - r-venndiagram
+    - r-rcolorbrewer
+    - r-readr
+    - r-rmarkdown
+    - r-glue
+    - r-upsetr
+    - r-knitr
+    - r-lemon
+    - r-data.table
+    - r-kableextra
+    - star
+    - rnanorm
+    - scikit-learn
+
+about:
+  home: https://github.com/ChrissiKalk97/SplitORF_pipeline/tree/bioconda-splitorf-pipeline/split-orf-prediction
+  license: MIT
+  summary: "Predict Split-ORFs based on transcripts sequences"
+
+extra:
+  recipe-maintainers:
+    - ChrissiKalk97
+  channels:
+    - conda-forge
+    - bioconda
+

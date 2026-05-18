@@ -1,0 +1,11 @@
+{
+    "file_path": "/Users/christina/Documents/bioconda-splitorf-pipeline/split-orf-prediction/Input2023",
+    "proteins": "protein_coding_peptide_sequences_tsl_refseq_filtered_29_09_25.fa",
+    "transcripts": "NMD_transcripts_CDNA.fa",
+    "annotation": "ENSEMBLhuman110PFAMformat.bed",
+    "reference_transcripts": "protein_coding_transcript_and_gene_cDNA_tsl_refseq_filtered_29_09_25.fa",
+    "exon_positions": "ExonCoordsWIthChr110.bed",
+    "align_method": "diamond",
+    "cds_coordinate_bed": "Ens_110_CDS_coordinates_genomic_protein_coding_tsl_refseq_filtered_29_09_25.bed",
+    "output_dir": "/Users/christina/Documents/bioconda-splitorf-pipeline/split-orf-prediction/Output"
+}
