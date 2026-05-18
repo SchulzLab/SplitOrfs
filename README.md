@@ -36,23 +36,23 @@ The following arguments need to be set within the JSON file:<br>
 ```json
 {
     "file_path": path where the input files are located
-    (all need to be in the same folder) (1),
-    "proteins": Reference protein sequences (amino acid sequences, FASTA) (2),
-    "transcripts": Transcripts sequences for Split-ORF prediction (FASTA) (3),
+    (all need to be in the same folder),
+    "proteins": Reference protein sequences (amino acid sequences, FASTA) (1),
+    "transcripts": Transcripts sequences for Split-ORF prediction (FASTA) (2),
     "annotation": PFAM annotation (with columns: transcript ID, 
-    start position annotation, stop position annotation, PFAM ID, TSV) (4),
+    start position annotation, stop position annotation, PFAM ID, TSV) (3),
     "reference_transcripts": Reference protein coding transcript sequences
-     (DNA sequences, FASTA) (5),
+     (DNA sequences, FASTA) (4),
     "exon_positions": Exon coordinates (can be downloaded from Ensembl Biomart
      Strucutres with the following columns:
     Gene stable ID,	Transcript stable ID,	Exon region start (bp),	
     Exon region end (bp),	Transcript start (bp),
-  	Transcript end (bp),	Strand,	Chromosome/scaffold name, TSV) (6),
-    "align_method": Alignment algorithm (blast or diamond) (7),
+  	Transcript end (bp),	Strand,	Chromosome/scaffold name, TSV) (5),
+    "align_method": Alignment algorithm (blast or diamond),
     "cds_coordinate_bed": CDS and contamination coordinates to subtract 
     from Split-ORF unique regions (Chromosome/scaffold name, Gene stable ID,  
-    Transcript stable ID, Genomic coding start, Genomic coding end, Strand) (8),
-    "output_dir": directory where outout files should be written to (9)
+    Transcript stable ID, Genomic coding start, Genomic coding end, Strand) (6),
+    "output_dir": directory where outout files should be written to
 }
 ```
 
@@ -62,16 +62,16 @@ All of the Input and Output files which were used for the Split-ORF prediction i
 
 All of these input files were downloaded from Ensembl Biomart (Ensembl Genes 110, GRCh38p.14) using the following mart options and transformed with the respective custom scripts which can be found in the Input_scripts folder of the Split-Orfs github repository: 
 
-2. Attributes: Sequences: Peptide, header information: Gene stable ID, Transcript stable ID, Filters: Gene: Transcript type: protein_coding.
-3. Attributes: Sequences: cDNA sequences, header information: Gene stable ID, Transcript stable ID, Filters: Gene: Transcript type: nonsense_mediated_decay or retained_intron. <
-4. Attributes: Features: Gene: Gene stable ID Transcript stable ID; Protein Domains and Families: Pfam ID, Pfam start, Pfam end. Remodelling scripts: convert_ensembl_output_to_bed.py.
-5. Attributes: Sequences: cDNA sequences, header information: Gene stable ID, Transcript stable ID, Filters: Gene: Transcript type: protein_coding.
-6. Attributes: Structures: Gene stable ID, Transcript stable ID, Exon region start, Exon region end, Transcript start, Transcript End, Strand. No filters were selected. Downloading all exonic positions includes those of the transcripts of interest.
-8. for the contaminations: Attributes: Structures: Chromosome/scaffold name, Gene stable ID, Transcript stable ID, Exon region start, Exon region end, Strand. Filter: Gene: the respective contaminating RNA (snoRNA, miRNA, snRNA, scaRNA, rRNA, rRNA_psuedogene, Mt_tRNA, Mt_rRNA).
+1. Attributes: Sequences: Peptide, header information: Gene stable ID, Transcript stable ID, Filters: Gene: Transcript type: protein_coding.
+2. Attributes: Sequences: cDNA sequences, header information: Gene stable ID, Transcript stable ID, Filters: Gene: Transcript type: nonsense_mediated_decay or retained_intron. <
+3. Attributes: Features: Gene: Gene stable ID Transcript stable ID; Protein Domains and Families: Pfam ID, Pfam start, Pfam end. Remodelling scripts: convert_ensembl_output_to_bed.py.
+4. Attributes: Sequences: cDNA sequences, header information: Gene stable ID, Transcript stable ID, Filters: Gene: Transcript type: protein_coding.
+5. Attributes: Structures: Gene stable ID, Transcript stable ID, Exon region start, Exon region end, Transcript start, Transcript End, Strand. No filters were selected. Downloading all exonic positions includes those of the transcripts of interest.
+6. for the contaminations: Attributes: Structures: Chromosome/scaffold name, Gene stable ID, Transcript stable ID, Exon region start, Exon region end, Strand. Filter: Gene: the respective contaminating RNA (snoRNA, miRNA, snRNA, scaRNA, rRNA, rRNA_psuedogene, Mt_tRNA, Mt_rRNA).
 for the CDS coordinates Attributes: Structures: Chromosome/scaffold name, Gene stable ID,  Transcript stable ID, Genomic coding start, Genomic coding end, Strand.
 
 
-Protein coding transcript (5) and protein sequences (2) as well as CDS coordinates (8) were filtered for transcript support level 1 or 2 or the presence of their exact intron chain in the RefSeq annotation (v.GCF_000001405.40-RS_2023_10) with custom scripts (filter_Ensembl_GTF.sh, Filter_prot_coding_reference.sh). The filtered CDS coordinates were combined with the contamination coordiantes into a single BED file using the remodelling script: generate_CDS_contamination_subtraction_coordinates.sh.<br>
+Protein coding transcript (4) and protein sequences (1) as well as CDS coordinates (6) were filtered for transcript support level 1 or 2 or the presence of their exact intron chain in the RefSeq annotation (v.GCF_000001405.40-RS_2023_10) with custom scripts (filter_Ensembl_GTF.sh, Filter_prot_coding_reference.sh). The filtered CDS coordinates were combined with the contamination coordiantes into a single BED file using the remodelling script: generate_CDS_contamination_subtraction_coordinates.sh.<br>
 The input files are specified via a JSON file and the Input data should be located in the same directory. <br>
 The Split-ORF pipeline creates an output folder with a timestamp of the run at a user specified location. All results as well as intermediate result files are written into this output directory. <br>
 The final output files are a TSV file of the predicted Split-ORFs, BED files of the genomic coordinates of the unique Split-ORF regions and two HTML reports about the predicted Split-ORF candidates and about their unique regions. The steps of the Split-ORF pipeline produce intermediate results which are also included in the output of the pipeline.
@@ -80,14 +80,14 @@ The final output files are a TSV file of the predicted Split-ORFs, BED files of 
 
 ### File structure
 
-The FASTA files (2,3,5) used for the Split-ORF pipeline need to have the following format for the header: 
+The FASTA files (1,2,4) used for the Split-ORF pipeline need to have the following format for the header: 
 
 **>ENSG00000001626|ENST00000003084**
 
 Where the first entry is the gene identifier and the second one the gene ID/transcript ID from which the protein was made. They need to be separated by a | character
 
 
-The **annotation bed file** (4) can be supplied for checking with overlap of known protein domains. It has the following format (header only shown for illustration should not be in the file):
+The **annotation bed file** (3) can be supplied for checking with overlap of known protein domains. It has the following format (header only shown for illustration should not be in the file):
 
 | Protein/Transcript ID | Start | End | Identifier |
 | --------------------- | ----- | --- | ---------- |
