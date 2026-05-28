@@ -6,8 +6,6 @@
     "input_fastq_path": "/projects/splitorfs/work/Riboseq/data/fastp/fastp_single_samples",
     "three_primes": "/projects/splitorfs/work/Riboseq/data/region_input/genomic/3_primes_genomic_merged_numbered.bed",
     "cds_coordinates": "/projects/splitorfs/work/Riboseq/data/region_input/genomic/Ens_110_CDS_coordinates_genomic_protein_coding_tsl_refseq_filtered.bed",
-    "script_path": "/home/ckalk/scripts/SplitORF_pipeline/riboseq-validation",
-    "ribo_pipe_path": "/home/ckalk/scripts/SplitORFs/Riboseq/Riboseq_analysis_pipeline",
     "input_name": "NMD",
     "region_type": "NMD",
     "bam_ending": "_NMD_sorted.bam",

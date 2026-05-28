@@ -32,23 +32,23 @@ python so_categorization_coverage_pipeline.py \
     --region_type "NMD" \
     --sample_type "NMD_inhibition"
 
-python so_categorization_coverage_pipeline.py \
-    --so_results "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/UniqueProteinORFPairs.txt" \
-    --so_categorization_df "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/so_categorization_df.csv" \
-    --ribo_coverage_path "${nmd_dir}" \
-    --ur_path "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/Unique_DNA_Regions_genomic_final.bed" \
-    --result_dir "${nmd_dir}" \
-    --region_type "NMD" \
-    --sample_type "HEK_control"
+# python so_categorization_coverage_pipeline.py \
+#     --so_results "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/UniqueProteinORFPairs.txt" \
+#     --so_categorization_df "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/so_categorization_df.csv" \
+#     --ribo_coverage_path "${nmd_dir}" \
+#     --ur_path "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/Unique_DNA_Regions_genomic_final.bed" \
+#     --result_dir "${nmd_dir}" \
+#     --region_type "NMD" \
+#     --sample_type "HEK_control"
 
-python so_categorization_coverage_pipeline.py \
-    --so_results "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/UniqueProteinORFPairs.txt" \
-    --so_categorization_df "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/so_categorization_df.csv" \
-    --ribo_coverage_path "${nmd_dir}" \
-    --ur_path "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/Unique_DNA_Regions_genomic_final.bed" \
-    --result_dir "${nmd_dir}" \
-    --region_type "NMD" \
-    --sample_type "all"
+# python so_categorization_coverage_pipeline.py \
+#     --so_results "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/UniqueProteinORFPairs.txt" \
+#     --so_categorization_df "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/so_categorization_df.csv" \
+#     --ribo_coverage_path "${nmd_dir}" \
+#     --ur_path "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction/Unique_DNA_Regions_genomic_final.bed" \
+#     --result_dir "${nmd_dir}" \
+#     --region_type "NMD" \
+#     --sample_type "all"
 
 ri_dir="/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/RI_genome"
 
@@ -71,23 +71,23 @@ python so_categorization_coverage_pipeline.py \
     --sample_type "NMD_inhibition"
 
 
-python so_categorization_coverage_pipeline.py \
-    --so_results "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction/UniqueProteinORFPairs.txt" \
-    --so_categorization_df "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction/so_categorization_df.csv" \
-    --ribo_coverage_path "${ri_dir}" \
-    --ur_path "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction/Unique_DNA_Regions_genomic_final.bed" \
-    --result_dir "${ri_dir}" \
-    --region_type "RI" \
-    --sample_type "HEK_control"
+# python so_categorization_coverage_pipeline.py \
+#     --so_results "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction/UniqueProteinORFPairs.txt" \
+#     --so_categorization_df "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction/so_categorization_df.csv" \
+#     --ribo_coverage_path "${ri_dir}" \
+#     --ur_path "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction/Unique_DNA_Regions_genomic_final.bed" \
+#     --result_dir "${ri_dir}" \
+#     --region_type "RI" \
+#     --sample_type "HEK_control"
 
-python so_categorization_coverage_pipeline.py \
-    --so_results "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction/UniqueProteinORFPairs.txt" \
-    --so_categorization_df "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction/so_categorization_df.csv" \
-    --ribo_coverage_path "${ri_dir}" \
-    --ur_path "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction/Unique_DNA_Regions_genomic_final.bed" \
-    --result_dir "${ri_dir}" \
-    --region_type "RI" \
-    --sample_type "all"
+# python so_categorization_coverage_pipeline.py \
+#     --so_results "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction/UniqueProteinORFPairs.txt" \
+#     --so_categorization_df "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction/so_categorization_df.csv" \
+#     --ribo_coverage_path "${ri_dir}" \
+#     --ur_path "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction/Unique_DNA_Regions_genomic_final.bed" \
+#     --result_dir "${ri_dir}" \
+#     --region_type "RI" \
+#     --sample_type "all"
 
 # combine genes of interesting candidates per NMD and RI transcripts
 find "${nmd_dir}/SO_coverage_categorization" -type f -name "*genes_interesting_candidates.txt" -print0 | xargs -0 cat | sort | uniq > "${nmd_dir}/SO_coverage_categorization/combined_NMD_interesting_candidate_genes.txt"

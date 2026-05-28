@@ -164,7 +164,7 @@ The **three_primes** should contain the genomic coordinates of 3' UTR regions th
 
 The cds_coordinates are downloaded from Ensembl Biomart (v.110) and are the same as the ones used for the split-orf-prediction module, but without the contaminations.
 
-All Input and Output files can be downloaded from Zenodo (add link).
+All Input and Output files can be downloaded from [Zenodo](https://zenodo.org/records/20340925).
 
 ## Output Files ribo-cov
 
@@ -178,7 +178,7 @@ In the Split-ORF pipeline paper we performed in depth analysis of the ribo-cov u
 Corresponding author: kalk@med.uni-frankfurt.de
 
 ## Citation
-Please cite our manuscripts (add link).
+Please cite our manuscripts on [bioRxiv](https://www.biorxiv.org/content/10.64898/2026.05.22.727176v1).
 
 
 ## License

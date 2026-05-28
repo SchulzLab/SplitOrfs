@@ -29,7 +29,7 @@ duplicated=$(jq -r '.duplicated' "$CONFIG")
 
 script_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"/ribo_cov_scripts
 
-# requirement: BAM files need to be named: inputname_bam_ending!!!!!
+# requirement: BAM files need end with: bam_ending!!!!!
 
 # output_star="/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/resample_q10_expression_filter"
 # unique_region_dir="/home/ckalk/tools/SplitORF_pipeline/Output/run_13.01.2026-11.44.16_NMD_CDS_subtraction_minAlignLength_15"
