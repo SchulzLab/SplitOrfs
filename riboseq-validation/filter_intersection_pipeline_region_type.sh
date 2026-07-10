@@ -92,7 +92,8 @@ if [[ ! -e  "${outdir}"/"${sample_name}_${region_type}_intersect_counts_sorted.b
             "$three_primes" \
             "${outdir}/${sample_name}_${region_type}_htseq_counts.tsv" \
             "$ensembl_gtf" \
-            20
+            20 \
+            "${region_type}"
     fi
 
     if [[ ! -e  "${outdir}/Unique_DNA_Regions_genomic_final_${sample_name}.bed" ]]; then
@@ -103,7 +104,8 @@ if [[ ! -e  "${outdir}"/"${sample_name}_${region_type}_intersect_counts_sorted.b
             "$unique_region_dir/Unique_DNA_Regions_genomic_final.bed" \
             "${outdir}/${sample_name}_${region_type}_htseq_counts.tsv" \
             "$ensembl_gtf" \
-            20
+            20 \
+            "${region_type}"
     fi
         
     cds_coordinates_tpm_filtered="${outdir}/"$(basename "${cds_coordinates}" .bed)_"${sample_name}".bed
@@ -112,7 +114,8 @@ if [[ ! -e  "${outdir}"/"${sample_name}_${region_type}_intersect_counts_sorted.b
             "${cds_coordinates}" \
             "${outdir}/${sample_name}_${region_type}_htseq_counts.tsv" \
             "$ensembl_gtf" \
-            20
+            20 \
+            "${region_type}"
     fi
 
     bash "${script_path}"/riboseq_coverage_3UTRs_vs_CDS_16_12_25.sh -b "${bam}" -c "${cds_coordinates_tpm_filtered}" \

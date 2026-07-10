@@ -27,14 +27,20 @@ def parse_args():
     parser.add_argument('tpm_threshold',
                         help='TPM Threshold')
 
+    parser.add_argument('region_type',
+                        help='TPM Threshold')
+
     return parser.parse_args()
 
 
-def main(bed_file_to_filter, htseq_counts, gtf_path, tpm_threshold):
+def main(bed_file_to_filter, htseq_counts, gtf_path, tpm_threshold, region_type):
     outdir = os.path.dirname(htseq_counts)
-    for file_end in ['_NMD_htseq_counts.tsv', '_RI_htseq_counts.tsv']:
-        if os.path.basename(htseq_counts).endswith(file_end):
-            sample = os.path.basename(htseq_counts).removesuffix(file_end)
+    file_end = f'_{region_type}_htseq_counts.tsv'
+    if os.path.basename(htseq_counts).endswith(file_end):
+        sample = os.path.basename(htseq_counts).removesuffix(file_end)
+    else:
+        sample = os.path.basename(
+            htseq_counts).removesuffix('_htseq_counts.tsv')
     bed_file_name = os.path.basename(bed_file_to_filter).removesuffix('.bed')
 
     bed_file_to_filter_df = pd.read_csv(
@@ -94,10 +100,11 @@ if __name__ == '__main__':
     htseq_counts = args.htseq_counts
     gtf_path = args.gtf_path
     tpm_threshold = int(args.tpm_threshold)
+    region_type = args.region_type
 
     # bed_file_to_filter = '/projects/splitorfs/work/Riboseq/data/region_input/genomic/3_primes_genomic_merged_numbered.bed'
 
     # htseq_counts = '/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/resample_q10_expression_filter/NMD_genome/huvec_dnor_2/huvec_dnor_2_NMD_htseq_counts.tsv'
 
     # gtf_path = '/projects/splitorfs/work/reference_files/Homo_sapiens.GRCh38.110.chr.gtf'
-    main(bed_file_to_filter, htseq_counts, gtf_path, tpm_threshold)
+    main(bed_file_to_filter, htseq_counts, gtf_path, tpm_threshold, region_type)
