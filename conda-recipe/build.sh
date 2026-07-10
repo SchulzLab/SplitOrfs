@@ -2,6 +2,9 @@
 # Exit on error
 set -e
 
+echo "SRC_DIR is: $SRC_DIR"
+ls -la $SRC_DIR
+
 # Copy your scripts to $PREFIX/bin so they are available in PATH
 mkdir -p $PREFIX/bin
 cp $SRC_DIR/split-orf-prediction/run_splitorfs_pipeline.sh $PREFIX/bin/split-orf-prediction
@@ -13,8 +16,8 @@ chmod +x $PREFIX/bin/split-orf-prediction
 
 mkdir -p $PREFIX/bin/ribo_cov_scripts
 cp $SRC_DIR/riboseq-validation/run_Riboseq_validation_pipeline_json_input.sh $PREFIX/bin/ribo-cov
-cp $SRC_DIR/riboseq-validation/ribo_cov_scripts/*.py $PREFIX/bin/ribo_cov_scripts
-cp $SRC_DIR/riboseq-validation/ribo_cov_scripts/*.R $PREFIX/bin/ribo_cov_scripts
-cp $SRC_DIR/riboseq-validation/ribo_cov_scripts/*.Rmd $PREFIX/bin/ribo_cov_scripts
-cp $SRC_DIR/riboseq-validation/ribo_cov_scripts/*.sh $PREFIX/bin/ribo_cov_scripts
+cp $SRC_DIR/riboseq-validation/*.py $PREFIX/bin/ribo_cov_scripts
+cp $SRC_DIR/riboseq-validation/*.R $PREFIX/bin/ribo_cov_scripts
+cp $SRC_DIR/riboseq-validation/*.Rmd $PREFIX/bin/ribo_cov_scripts
+cp $SRC_DIR/riboseq-validation/*.sh $PREFIX/bin/ribo_cov_scripts
 chmod +x $PREFIX/bin/ribo-cov
