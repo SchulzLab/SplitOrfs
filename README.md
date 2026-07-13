@@ -24,6 +24,7 @@ cd SplitOrfs/conda-recipe
 conda/mamba create -n splitorf_env -c local -c bioconda -c conda-forge
 conda activate splitorf_env
 conda build .
+conda install --use-local split-orf-pipeline
 ```
 When the respective conda environment is acitvated, then the **split-orf-prediction** and **ribo-cov** can be run from the command line with the respective JSON files as input that are described in more detail below.
 

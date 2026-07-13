@@ -1,6 +1,8 @@
 #!/bin/bash
 # Exit on error
-set -e
+set -euo pipefail
+: "${PREFIX:?not running under conda build}"
+: "${SRC_DIR:?not running under conda build}"
 
 echo "SRC_DIR is: $SRC_DIR"
 ls -la $SRC_DIR
