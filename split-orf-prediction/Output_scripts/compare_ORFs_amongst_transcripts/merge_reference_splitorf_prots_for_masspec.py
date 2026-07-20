@@ -75,6 +75,7 @@ def main(reference_protein_fasta, merged_splitorf_protein_fasta, outfile):
     merged_id_df = ref_id_df.copy()
     merged_seqs = dedup_orfs
     for sequence, so_list in so_dedup_orfs.items():
+        # dispose of SOs that have a sequence identical to a reference protein
         if sequence not in dedup_orfs.keys():
             merged_seqs[sequence] = so_list
             merged_id_df.loc[so_list[0]] = [so_list[0]]
