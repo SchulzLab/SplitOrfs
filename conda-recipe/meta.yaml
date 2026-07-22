@@ -54,6 +54,8 @@ requirements:
     - star
     - rnanorm
     - scikit-learn
+    - plotly
+    - python-kaleido=0.2.1
 
 about:
   home: https://github.com/ChrissiKalk97/SplitORF_pipeline/tree/bioconda-splitorf-pipeline/split-orf-prediction

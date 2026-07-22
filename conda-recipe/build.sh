@@ -17,9 +17,12 @@ cp $SRC_DIR/split-orf-prediction/*.Rmd $PREFIX/bin/
 chmod +x $PREFIX/bin/split-orf-prediction
 
 mkdir -p $PREFIX/bin/ribo_cov_scripts
+mkdir -p $PREFIX/bin/ribo_cov_scripts/SO_categorization_by_UR_coverage_results
 cp $SRC_DIR/riboseq-validation/run_Riboseq_validation_pipeline_json_input.sh $PREFIX/bin/ribo-cov
 cp $SRC_DIR/riboseq-validation/*.py $PREFIX/bin/ribo_cov_scripts
 cp $SRC_DIR/riboseq-validation/*.R $PREFIX/bin/ribo_cov_scripts
 cp $SRC_DIR/riboseq-validation/*.Rmd $PREFIX/bin/ribo_cov_scripts
 cp $SRC_DIR/riboseq-validation/*.sh $PREFIX/bin/ribo_cov_scripts
+cp $SRC_DIR/riboseq-validation/SO_categorization_by_UR_coverage_results/SplitORF_categorization_coverage_pipeline_generalized_21_07_26.sh $PREFIX/bin/ribo_cov_scripts/SO_categorization_by_UR_coverage_results
+cp $SRC_DIR/riboseq-validation/SO_categorization_by_UR_coverage_results/*.py $PREFIX/bin/ribo_cov_scripts/SO_categorization_by_UR_coverage_results
 chmod +x $PREFIX/bin/ribo-cov

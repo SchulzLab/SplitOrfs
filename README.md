@@ -23,6 +23,7 @@ git clone git@github.com:SchulzLab/SplitOrfs.git
 cd SplitOrfs/conda-recipe
 conda/mamba create -n splitorf_env -c local -c bioconda -c conda-forge
 conda activate splitorf_env
+conda/mamba install conda-build
 conda build .
 conda install --use-local split-orf-pipeline
 ```
