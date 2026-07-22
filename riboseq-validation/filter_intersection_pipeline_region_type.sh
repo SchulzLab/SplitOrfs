@@ -2,8 +2,8 @@
 
 #!/bin/bash -l
 
-eval "$(conda shell.bash hook)"
-source activate Riboseq
+# eval "$(conda shell.bash hook)"
+# source activate Riboseq
 
 
 # Help message:

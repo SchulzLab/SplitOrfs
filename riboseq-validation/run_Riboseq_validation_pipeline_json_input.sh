@@ -65,7 +65,7 @@ bash "${script_path}"/run_Riboseq_validation_pipeline.sh \
 
  
 
-if [ -n "$report" ]; then
+if [ ! -e "$report" ]; then
     export script_path
     export output_star
     export region_type
@@ -73,5 +73,11 @@ if [ -n "$report" ]; then
     export report
     R -e 'library(rmarkdown); rmarkdown::render(input = file.path(Sys.getenv("script_path"), "RiboSeqReportGenomic_iteration_update_expression_filter_multiple_test_correction.Rmd"), output_file = Sys.getenv("report"), params=list(args = c(file.path(Sys.getenv("output_star"), paste(Sys.getenv("region_type"), "genome", sep = "_")), Sys.getenv("unique_region_dir"), Sys.getenv("region_type"), Sys.getenv("script_path"))))'
 fi
+
+bash "${script_path}"/SO_categorization_by_UR_coverage_results/SplitORF_categorization_coverage_pipeline_generalized_21_07_26.sh \
+"$output_star"/"$region_type"_genome \
+"$unique_region_dir" \
+"$region_type" \
+"${script_path}"/SO_categorization_by_UR_coverage_results
 
 
