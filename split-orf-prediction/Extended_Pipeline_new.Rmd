@@ -70,7 +70,7 @@ cat(paste0("Maximal length of unique region:\t", max(lengthlist),
            " (for region ", substr(getName(dnaresult[match(max(lengthlist), lengthlist)]), start = 1, stop = 31),
            ")  \n"))
 
-DNA_ids = substr(getName(dnaresult), start = 1, stop = 31)
+DNA_ids = sapply(strsplit(getName(dnaresult), ":"), `[`, 1)
 DNA_Unique_per_transcript = as.vector(table(DNA_ids))
 
 protein_bed <- as.data.frame(read.table(file3, header = FALSE, sep="\t", stringsAsFactors=FALSE, quote=""))
