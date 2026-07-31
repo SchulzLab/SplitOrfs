@@ -37,6 +37,8 @@ def validated_so_per_sample_analysis(ribo_coverage_path, all_predicted_so_orfs, 
             (sample_type == 'control' and 'SRR85' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'SRR10' in empirical_Ribo_findings_file) or \
             (sample_type == 'NMD_inhibition' and 'HCT' and '12h' in empirical_Ribo_findings_file) or \
+            (sample_type == 'cancer' and 'SRR85' in empirical_Ribo_findings_file) or \
+            (sample_type == 'cancer' and 'SRR10' in empirical_Ribo_findings_file) or \
             (sample_type == 'all' and 'HCT' in empirical_Ribo_findings_file) or \
             (sample_type == 'all' and 'SRR85' in empirical_Ribo_findings_file) or \
                 (sample_type == 'all' and 'SRR10' in empirical_Ribo_findings_file):
@@ -66,7 +68,7 @@ def explode_so_df(predicted_so_orfs):
 def subset_validated_sos_df(all_predicted_so_orfs, outdir, region_type):
     all_predicted_so_orfs['ValidationCount'] = all_predicted_so_orfs.iloc[:, range(
         6, len(all_predicted_so_orfs.columns))].sum(axis=1, numeric_only=True)
-    validated_so_df = all_predicted_so_orfs[all_predicted_so_orfs['ValidationCount'] > 0].copy(
+    validated_so_df = all_predicted_so_orfs[all_predicted_so_orfs['ValidationCount'] > 1].copy(
     )
 
     # write txt file with genes that have validated SOs
@@ -108,28 +110,30 @@ def subset_UR_for_expressed_genes(dna_ur_df, validated_so_df, ribo_coverage_path
 
 def filter_so_genes(ribo_coverage_path, sample_type):
     '''
-        filter genes for TPM of at least 20 
+        filter genes for TPM threshold 
     '''
-    genes_above_20_list = []
+    genes_above_tpm_list = []
     for empirical_Ribo_findings_file in glob.glob(f"{ribo_coverage_path}/**/Unique_DNA_Regions_genomic_*_chrom_sorted.bed", recursive=True):
         if (sample_type == 'HEK_control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'SRR85' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'SRR10' in empirical_Ribo_findings_file) or \
             (sample_type == 'NMD_inhibition' and 'HCT' and '12h' in empirical_Ribo_findings_file) or \
+            (sample_type == 'cancer' and 'SRR85' in empirical_Ribo_findings_file) or \
+            (sample_type == 'cancer' and 'SRR10' in empirical_Ribo_findings_file) or \
             (sample_type == 'all' and 'HCT' in empirical_Ribo_findings_file) or \
             (sample_type == 'all' and 'SRR85' in empirical_Ribo_findings_file) or \
                 (sample_type == 'all'  'SRR10' in empirical_Ribo_findings_file):
-            unique_regions_tpm_20_filtered = pd.read_csv(
+            unique_regions_tpm_tpm_filtered = pd.read_csv(
                 empirical_Ribo_findings_file, header=None, index_col=None, sep='\t')
-            unique_regions_tpm_20_filtered['gene_id'] = unique_regions_tpm_20_filtered.iloc[:, 3].apply(
+            unique_regions_tpm_tpm_filtered['gene_id'] = unique_regions_tpm_tpm_filtered.iloc[:, 3].apply(
                 lambda x: x.split('|')[0])
-            genes_above_20_list = genes_above_20_list + \
-                unique_regions_tpm_20_filtered['gene_id'].to_list()
-    counts_above_20 = Counter(genes_above_20_list)
+            genes_above_tpm_list = genes_above_tpm_list + \
+                unique_regions_tpm_tpm_filtered['gene_id'].to_list()
+    counts_above_tpm = Counter(genes_above_tpm_list)
     genes_to_keep = []
-    for gene, count in counts_above_20.items():
-        if count > 0:
+    for gene, count in counts_above_tpm.items():
+        if count > 1:
             genes_to_keep.append(gene)
     return genes_to_keep
 
