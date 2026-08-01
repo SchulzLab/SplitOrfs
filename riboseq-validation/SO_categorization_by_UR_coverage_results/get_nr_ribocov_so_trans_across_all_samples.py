@@ -15,22 +15,25 @@ def parse_args():
     # Required positional arguments
 
     parser.add_argument('--control_cat_csv',
-                        help='interesting candidate CSV of the control samples')
+                        help='interesting candidate CSV of the HCT control samples')
     parser.add_argument('--nmd_inh_cat_csv',
-                        help='interesting candidate CSV of the NMd inhibited samples')
+                        help='interesting candidate CSV of the NMD inhibited samples')
+    parser.add_argument('--cancer_cat_csv',
+                        help='interesting candidate CSV of the cancer samples')
     parser.add_argument('--region_type',
                         help='NMD or RI')
 
     return parser.parse_args()
 
 
-def main(control_cat_csv, nmd_inh_cat_csv, region_type):
+def main(control_cat_csv, nmd_inh_cat_csv, cancer_cat_csv, region_type):
     outdir = os.path.dirname(nmd_inh_cat_csv)
 
     control_df = pd.read_csv(control_cat_csv, header=0)
     nmd_inh_df = pd.read_csv(nmd_inh_cat_csv, header=0)
+    cancer_cat_csv = pd.read_csv(cancer_cat_csv, header=0)
 
-    union_df = pd.concat([control_df, nmd_inh_df])
+    union_df = pd.concat([control_df, nmd_inh_df, cancer_cat_csv])
 
     assert (union_df['ribocov_analyzable'] == 'ribocov analyzable').all()
     assert (union_df['covDistinctUr'] > 0).all()
@@ -57,10 +60,11 @@ if __name__ == '__main__':
 
     control_cat_csv = args.control_cat_csv
     nmd_inh_cat_csv = args.nmd_inh_cat_csv
+    cancer_cat_csv = args.cancer_cat_csv
     region_type = args.region_type
 
     # control_cat_csv = "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/NMD_genome/SO_coverage_categorization/NMD_control/control_NMD_interesting_candidates.csv"
     # nmd_inh_cat_csv = "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/NMD_genome/SO_coverage_categorization/NMD_NMD_inhibition/NMD_inhibition_NMD_interesting_candidates.csv"
     # region_type = 'NMD'
 
-    main(control_cat_csv, nmd_inh_cat_csv, region_type)
+    main(control_cat_csv, nmd_inh_cat_csv, cancer_cat_csv, region_type)

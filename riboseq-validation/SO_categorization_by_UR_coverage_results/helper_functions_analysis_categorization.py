@@ -32,7 +32,7 @@ def validated_so_per_sample_analysis(ribo_coverage_path, all_predicted_so_orfs, 
     '''
     nr_samples = 0
     for empirical_Ribo_findings_file in glob.glob(f"{ribo_coverage_path}/*_unique_regions.csv"):
-        if (sample_type == 'HEK_control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
+        if (sample_type == 'HCT_control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'SRR85' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'SRR10' in empirical_Ribo_findings_file) or \
@@ -114,7 +114,7 @@ def filter_so_genes(ribo_coverage_path, sample_type):
     '''
     genes_above_tpm_list = []
     for empirical_Ribo_findings_file in glob.glob(f"{ribo_coverage_path}/**/Unique_DNA_Regions_genomic_*_chrom_sorted.bed", recursive=True):
-        if (sample_type == 'HEK_control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
+        if (sample_type == 'HCT_control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'HCT' and '0h' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'SRR85' in empirical_Ribo_findings_file) or \
             (sample_type == 'control' and 'SRR10' in empirical_Ribo_findings_file) or \
