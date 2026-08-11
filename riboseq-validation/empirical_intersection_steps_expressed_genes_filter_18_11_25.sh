@@ -28,7 +28,7 @@ while getopts ':h' option; do
   shift 2
 done
 
-if [[ $# -ne 7 ]]; then #check for right number of arguments
+if [[ $# -ne 8 ]]; then #check for right number of arguments
   echo -e "${RED}
   ERROR while executing the script!
   Wrong number of arguments.${NC}"
@@ -47,8 +47,8 @@ coordinates_3_prime=$3
 outname=$4
 random_region_path=$5
 genome_fasta=$6
-tmp_dir=$6
-script_path=$7
+tmp_dir=$7
+script_path=$8
 
 # echo "$input_file"
 # echo $unique_regions

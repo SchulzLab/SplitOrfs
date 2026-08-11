@@ -12,7 +12,7 @@ where:
 "
 
 # available options for the programm
-while getopts 'b:c:hp:s:t:' option; do
+while getopts 'b:c:f:hp:s:t:' option; do
   case "$option" in
     b)
         bam="$OPTARG"
@@ -20,6 +20,9 @@ while getopts 'b:c:hp:s:t:' option; do
     c)
         cds_coordinates="$OPTARG"
         ;;  
+    f)
+        percentile_filter="$OPTARG"
+        ;;
     p)
         script_path="$OPTARG"
         ;;
@@ -82,7 +85,7 @@ if [ ! -s "${output_dir}/3_primes_filtered_for_CDS_distribution_${sample_name}.b
     "${bedtools_coverage_cds_outfile}" \
     "${sample_name}" \
     "${three_primes}" \
-    0.05
+    $percentile_filter
 fi
 
 sort -k1,1 -k2,2n "${output_dir}/3_primes_filtered_for_CDS_distribution_${sample_name}.bed" \

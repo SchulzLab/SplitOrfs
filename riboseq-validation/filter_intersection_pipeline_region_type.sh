@@ -15,7 +15,7 @@ where:
 "
 
 # available options for the programm
-while getopts 'b:c:e:g:hi:n:o:p:r:s:t:u:d' option; do
+while getopts 'b:c:e:f:g:hi:j:k:n:o:p:r:s:t:u:d' option; do
   case "$option" in
     b)
         bam="$OPTARG"
@@ -29,11 +29,20 @@ while getopts 'b:c:e:g:hi:n:o:p:r:s:t:u:d' option; do
     e)
         ensembl_gtf="$OPTARG"
         ;;
+    f)
+        filter_tpm="$OPTARG"
+        ;;
     g)
         genome_fasta="$OPTARG"
         ;;
     i)
         intersection_input="$OPTARG"
+        ;;
+    j) 
+        percentile_filter_3_primes="$OPTARG"
+        ;;
+    k)
+        tmp_dir="$OPTARG"
         ;;
     n) 
         name="$OPTARG"
@@ -92,7 +101,7 @@ if [[ ! -e  "${outdir}"/"${sample_name}_${region_type}_intersect_counts_sorted.b
             "$three_primes" \
             "${outdir}/${sample_name}_${region_type}_htseq_counts.tsv" \
             "$ensembl_gtf" \
-            20 \
+            $filter_tpm \
             "${region_type}"
     fi
 
@@ -104,7 +113,7 @@ if [[ ! -e  "${outdir}"/"${sample_name}_${region_type}_intersect_counts_sorted.b
             "$unique_region_dir/Unique_DNA_Regions_genomic_final.bed" \
             "${outdir}/${sample_name}_${region_type}_htseq_counts.tsv" \
             "$ensembl_gtf" \
-            20 \
+            $filter_tpm \
             "${region_type}"
     fi
         
@@ -114,12 +123,17 @@ if [[ ! -e  "${outdir}"/"${sample_name}_${region_type}_intersect_counts_sorted.b
             "${cds_coordinates}" \
             "${outdir}/${sample_name}_${region_type}_htseq_counts.tsv" \
             "$ensembl_gtf" \
-            20 \
+            $filter_tpm \
             "${region_type}"
     fi
 
-    bash "${script_path}"/riboseq_coverage_3UTRs_vs_CDS_16_12_25.sh -b "${bam}" -c "${cds_coordinates_tpm_filtered}" \
-    -s "${sample_name}" -t "${outdir}"/"${threeprime_basename}"_"${sample_name}".bed -p "${script_path}"
+    bash "${script_path}"/riboseq_coverage_3UTRs_vs_CDS_16_12_25.sh \
+    -b "${bam}" \
+    -c "${cds_coordinates_tpm_filtered}" \
+    -f $percentile_filter_3_primes \
+    -s "${sample_name}" \
+    -t "${outdir}"/"${threeprime_basename}"_"${sample_name}".bed \
+    -p "${script_path}"
 
     # implement a filter that only conducts the empiricial intersection pipeline
     # if a certain read depth is found
@@ -146,6 +160,7 @@ if [[ ! -e  "${outdir}"/"${sample_name}_${region_type}_intersect_counts_sorted.b
             "${outdir}/${sample_name}_${region_type}" \
             "${outdir}" \
             "${genome_fasta}" \
+            "$tmp_dir" \
             "${script_path}"
 
         echo "===================       Sample "$sample_name" intersected"

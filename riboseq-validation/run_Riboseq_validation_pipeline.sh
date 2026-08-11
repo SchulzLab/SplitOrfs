@@ -39,7 +39,7 @@ where:
 "
 
 # available options for the programm
-while getopts 'b:c:d:e:g:hi:n:o:p:r:s:t:u:' option; do
+while getopts 'b:c:d:e:f:g:hi:j:n:o:p:r:s:t:u:' option; do
   case "$option" in
     b)
         bam_ending="$OPTARG"
@@ -53,11 +53,17 @@ while getopts 'b:c:d:e:g:hi:n:o:p:r:s:t:u:' option; do
     e)
         ensembl_gtf="$OPTARG"
         ;;
+    f)
+        filter_tpm="$OPTARG"
+        ;;
     g)
         genome_fasta="$OPTARG"
         ;;
     i)
         input_fastq_path="$OPTARG"
+        ;;
+    j) 
+        percentile_filter_3_primes="$OPTARG"
         ;;
     n) 
         input_name="$OPTARG"
@@ -107,23 +113,6 @@ if [ -n "${input_fastq_path}" ]; then
         fi
     fi
 fi
-
-
-
-# if [[ -n "${filtered_gtf}" ]]; then
-#     # filtering the 3' UTR regions
-#     bash "${script_path}/region_handling/get_3prime_genomic_coords.sh" \
-#     -c "${cds_coordinates}" \
-#     -f "${filtered_gtf}" \
-#     -r "${region_type}" \
-#     -t "${three_primes}" \
-#     -u "${unique_region_dir}"
-
-#     # idea check for if running the filtering step, otherwise, they can be supplied
-#     # ready to go, then they are required in BED format: can write tests for this!!!
-#     # 3_prime_UTR_coords_genomic_Ensembl_110.txt
-#     # and CDS: Ens_110_CDS_coordinates_genomic_all.txt
-# fi
 
 
 if [[ -n "$input_fastq_path" ]]; then
@@ -191,8 +180,11 @@ for folder in "$file_dir" "$file_dir"/*/; do
                             -b "$bam" \
                             -c "$cds_coordinates" \
                             -e "$ensembl_gtf"\
+                            -f $filter_tpm \
                             -g "$genome_fasta" \
                             -i "${file_dir}/${sample_name}/${sample_name}_${input_name}_chrom_sort.bed" \
+                            -j $percentile_filter_3_primes \
+                            -k "$tmp_dir" \
                             -n "${file_dir}/${sample_name}/${sample_name}_${input_name}" \
                             -o "$output_star" \
                             -p "$script_path"\
@@ -206,8 +198,11 @@ for folder in "$file_dir" "$file_dir"/*/; do
                             -b "$bam" \
                             -c "$cds_coordinates" \
                             -e "$ensembl_gtf"\
+                            -f $filter_tpm \
                             -g "$genome_fasta" \
                             -i "$bam" \
+                            -j $percentile_filter_3_primes \
+                            -k "$tmp_dir" \
                             -n "${file_dir}/${sample_name}/${sample_name}_${input_name}" \
                             -o "$output_star" \
                             -p "$script_path"\

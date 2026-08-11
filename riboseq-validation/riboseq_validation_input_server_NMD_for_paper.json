@@ -1,15 +1,16 @@
 {
-    "output_star": "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda",
-    "unique_region_dir": "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.10.51_RI_contamination_subtraction",
+    "output_star": "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/conda_package_ribocov_test",
+    "unique_region_dir": "/projects/splitorfs/work/split-orf-prediction/Output/run_07.04.2026-16.05.28_NMD_cont_subtraction",
     "ensembl_gtf": "/projects/splitorfs/work/reference_files/Homo_sapiens.GRCh38.110.chr.gtf",
     "genome_fasta": "/projects/splitorfs/work/reference_files/Homo_sapiens.GRCh38.dna.primary_assembly_110.fa",
-    "input_fastq_path": "/projects/splitorfs/work/Riboseq/data/fastp/fastp_single_samples",
     "three_primes": "/projects/splitorfs/work/Riboseq/data/region_input/genomic/3_primes_genomic_merged_numbered.bed",
     "cds_coordinates": "/projects/splitorfs/work/Riboseq/data/region_input/genomic/Ens_110_CDS_coordinates_genomic_protein_coding_tsl_refseq_filtered.bed",
+    "filter_tpm": 1,
+    "percentile_filter_3_primes": 0.25,
     "input_name": "NMD",
-    "region_type": "RI",
+    "region_type": "NMD",
     "bam_ending": "_NMD_sorted.bam",
-    "tmp_dir": "/scratch/tmp/$USER",
-    "report": "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/RI_Ribo_report.pdf",
+    "tmp_dir": "/scratch/tmp/ckalk",
+    "report": "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/conda_package_ribocov_test/NMD_Ribo_report_TPM_1_3prime_filter_0.25.pdf",
     "duplicated": true
 }

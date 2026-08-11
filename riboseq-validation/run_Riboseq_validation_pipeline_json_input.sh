@@ -18,10 +18,11 @@ input_fastq_path=$(jq -r '.input_fastq_path // empty' "$CONFIG")
 three_primes=$(jq -r '.three_primes' "$CONFIG")
 cds_coordinates=$(jq -r '.cds_coordinates' "$CONFIG")
 output_dir=$(jq -r '.output_dir' "$CONFIG")
-# script_path=$(jq -r '.script_path' "$CONFIG")
+filter_tpm=$(jq -r '.filter_tpm' "$CONFIG")
 ribo_pipe_path=$(jq -r '.ribo_pipe_path' "$CONFIG")
 input_name=$(jq -r '.input_name' "$CONFIG")
 region_type=$(jq -r '.region_type' "$CONFIG")
+percentile_filter_3_primes=$(jq -r '.percentile_filter_3_primes' "$CONFIG")
 bam_ending=$(jq -r '.bam_ending' "$CONFIG")
 tmp_dir=$(jq -r '.tmp_dir' "$CONFIG")
 report=$(jq -r '.report // empty' "$CONFIG")
@@ -51,8 +52,10 @@ bash "${script_path}"/run_Riboseq_validation_pipeline.sh \
     -c "$cds_coordinates" \
     -d "$duplicated" \
     -e "$ensembl_gtf" \
+    -f $filter_tpm \
     -g "$genome_fasta" \
     -i "$input_fastq_path" \
+    -j $percentile_filter_3_primes \
     -n "$input_name" \
     -o "$output_star" \
     -p "$tmp_dir" \

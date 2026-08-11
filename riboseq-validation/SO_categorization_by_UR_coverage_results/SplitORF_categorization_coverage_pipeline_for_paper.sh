@@ -12,6 +12,10 @@ conda activate Riboseq
 rbpbase=true
 pfam=false
 
+################################################################################
+# SO CATEGORIZATION FOR NMD TRANSCRIPTS                                        #
+################################################################################
+
 nmd_dir="/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/conda_package_ribocov_test/NMD_genome"
 
 python so_categorization_coverage_pipeline.py \
@@ -43,6 +47,17 @@ python so_categorization_coverage_pipeline.py \
     --sample_type "cancer"
 
 
+python get_nr_ribocov_split_orfs_across_all_samples.py \
+ --control_so_csv "${nmd_dir}/SO_coverage_categorization/NMD_HCT_control/validated_so_df.csv"\
+ --nmd_inh_so_csv "${nmd_dir}/SO_coverage_categorization/NMD_NMD_inhibition/validated_so_df.csv" \
+ --cancer_so_csv "${nmd_dir}/SO_coverage_categorization/NMD_cancer/validated_so_df.csv" \
+ --region_type NMD
+
+
+################################################################################
+# SO CATEGORIZATION FOR RI TRANSCRIPTS                                         #
+################################################################################
+
 ri_dir="/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/conda_package_ribocov_test/RI_genome"
 
 python so_categorization_coverage_pipeline.py \
@@ -73,6 +88,14 @@ python so_categorization_coverage_pipeline.py \
     --sample_type "cancer"
 
 
+################################################################################
+# CREATE SET OF INTERESTING CANDIDATES                                         #
+################################################################################
+# print number of interesting candidate genes per condition and region type
+echo "printing number of interesting candidate genes per cell type and condition"
+find "${nmd_dir}/SO_coverage_categorization" -type f -name "*genes_interesting_candidates.txt" -exec wc -l {} +
+find "${ri_dir}/SO_coverage_categorization" -type f -name "*genes_interesting_candidates.txt" -exec wc -l {} +
+
 # combine genes of interesting candidates per NMD and RI transcripts
 find "${nmd_dir}/SO_coverage_categorization" -type f -name "*genes_interesting_candidates.txt" -print0 | xargs -0 cat | sort | uniq > "${nmd_dir}/SO_coverage_categorization/combined_NMD_interesting_candidate_genes.txt"
 
@@ -86,7 +109,9 @@ echo "Total number of interesting candidate genes NMD and RI"
 
 wc -l "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/union_RI_NMD_interesting_candidate_genes.txt"
 
-
+################################################################################
+# OBTAIN EXACT NUMBERS FOR MANUSCRIPT                                          #
+################################################################################
 # get the total number of SO transcripts per RI and NMD transcripts that have ribo-cov
 python get_nr_ribocov_so_trans_across_all_samples.py \
  --control_cat_csv "${nmd_dir}/SO_coverage_categorization/NMD_HCT_control/HCT_control_NMD_interesting_candidates.csv"\
@@ -103,6 +128,46 @@ python get_nr_ribocov_so_trans_across_all_samples.py \
  --region_type RI
 
 
+python get_nr_ribocov_split_orfs_across_all_samples.py \
+ --control_so_csv "${ri_dir}/SO_coverage_categorization/RI_HCT_control/validated_so_df.csv"\
+ --nmd_inh_so_csv "${ri_dir}/SO_coverage_categorization/RI_NMD_inhibition/validated_so_df.csv" \
+ --cancer_so_csv "${ri_dir}/SO_coverage_categorization/RI_cancer/validated_so_df.csv" \
+ --region_type RI
+
+
+# count number of genes that give rise to the SOs with coverage in both ORFs, per file 
+# (cancer, HCT control, NMD inhibition) and also the union without duplication for all of them
+
+
+
+# get the total number of SO transcripts per RI and NMD transcripts that have ribo-cov in 2 ORFS!!!
+python get_nr_ribocov_two_orfs_so_trans_across_all_samples.py \
+ --control_cat_csv "${nmd_dir}/SO_coverage_categorization/NMD_HCT_control/so_categorization_two_orfs_cov_df_HCT_control_NMD.csv"\
+ --nmd_inh_cat_csv "${nmd_dir}/SO_coverage_categorization/NMD_NMD_inhibition/so_categorization_two_orfs_cov_df_NMD_inhibition_NMD.csv" \
+ --cancer_cat_csv "${nmd_dir}/SO_coverage_categorization/NMD_cancer/so_categorization_two_orfs_cov_df_cancer_NMD.csv" \
+ --region_type NMD
+
+
+# get the total number of SO transcripts per RI and NMD transcripts that have ribo-cov in 2 ORFS!!!
+python get_nr_ribocov_two_orfs_so_trans_across_all_samples.py \
+ --control_cat_csv "${ri_dir}/SO_coverage_categorization/RI_HCT_control/so_categorization_two_orfs_cov_df_HCT_control_RI.csv"\
+ --nmd_inh_cat_csv "${ri_dir}/SO_coverage_categorization/RI_NMD_inhibition/so_categorization_two_orfs_cov_df_NMD_inhibition_RI.csv" \
+ --cancer_cat_csv "${ri_dir}/SO_coverage_categorization/RI_cancer/so_categorization_two_orfs_cov_df_cancer_RI.csv" \
+ --region_type RI
+
+
+# gene union among NMD and RI that have ribo-cov in 2 ORFS!!!
+cat "${nmd_dir}/SO_coverage_categorization/ribocov_genes_two_orfs_union_NMD.txt" \
+"${ri_dir}/SO_coverage_categorization/ribocov_genes_two_orfs_union_RI.txt" \
+| sort | uniq > "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/union_RI_NMD_ribocov_genes_two_orfs_union.txt"
+
+
+echo "number of SO genes in RI and NMD union with at least 2 ribo-cov ORFs (of same transcript)"
+echo "$(wc -l /projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/union_RI_NMD_ribocov_genes_two_orfs_union.txt)"
+
+################################################################################
+# DOWNSTREAM RBP ANALYSIS                                                      #
+################################################################################
 if [[ "${rbpbase}" == true ]]; then 
     rbpbase_script_dir="/home/ckalk/scripts/SplitOrfs/riboseq-validation/downstream_analysis_validated_URs"
     bash ../downstream_analysis_validated_URs/run_rbpbase_analysis_gene_level_for_paper_31_07_26.sh "${rbpbase_script_dir}"> ../downstream_analysis_validated_URs/outreports_of_runs/run_rbpbase_analysis_paper_01_08_26.out 2>&1

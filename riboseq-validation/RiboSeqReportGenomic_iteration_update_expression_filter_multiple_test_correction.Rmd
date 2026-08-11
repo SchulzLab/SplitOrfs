@@ -9,6 +9,10 @@ params:
 ---
 The following document is a report on the alignment of multiple Ribo-Seq datasets against the transcriptome. This alignment was intersected with the unique regions of the SplitORFs of NMD and RI transcripts, as calculated in the SplitORFs pipeline. Random regions of the 3' and 5' UTR with the same length distribution as the unique regions were created and intersected with the alignment as well. These serve as the null distribution, or background noise, as these regions should not be actively translated. From the null distribution a threshold is calculated as the upper limit of the 95% CI to classify whether the unique regions are found more often than expected by random chance.
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
 # Calculate the null distribution for the unique Split-ORF regions
 
 ```{r, include = FALSE}
@@ -19,7 +23,7 @@ unique_region_type <- args[[3]]
 script_path <- args[[4]]
 ```
 
-```{r, echo=FALSE, libraries, message=FALSE, , include = FALSE}
+```{r, echo=FALSE, libraries, message=FALSE, include = FALSE}
 source(file.path(script_path, "helper_functions_Riboseq_report_tpm_filter_multitest.R"))
 ```
 
@@ -125,7 +129,7 @@ upset(fromList(upsetlist),
       sets.x.label = "Matching Split-ORFs per dataset",
       text.scale = c(0.5, 0.5, 0.4, 0.5, 0.5, 0.5)
       )
-dev.off()
+invisible(dev.off())
 ```
 
 
@@ -142,7 +146,7 @@ upset(fromList(upsetlist_genomic),
       sets.x.label = "Matching unique regions per dataset",
       text.scale = c(0.5, 0.5, 0.4, 0.5, 0.5, 0.5)
       )
-dev.off()
+invisible(dev.off())
 ```
 
 ```{r, echo=FALSE, message=FALSE}
@@ -157,7 +161,7 @@ upset(fromList(upsetlist_genomic),
       sets.x.label = "Matching unique regions per dataset",
       text.scale = c(0.5, 0.5, 0.4, 0.5, 0.5, 0.5)
       )
-dev.off()
+invisible(dev.off())
 ```
 
 ```{r, echo=FALSE, message=FALSE}
@@ -172,7 +176,7 @@ upset(fromList(upsetlist),
       sets.x.label = "Matching unique regions per dataset",
       text.scale = c(0.5, 0.5, 0.4, 0.5, 0.5, 0.5)
       )
-dev.off()
+invisible(dev.off())
 ```
 
 
