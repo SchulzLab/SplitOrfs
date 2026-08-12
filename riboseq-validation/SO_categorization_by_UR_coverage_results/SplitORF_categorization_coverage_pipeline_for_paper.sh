@@ -12,9 +12,9 @@ conda activate Riboseq
 rbpbase=true
 pfam=false
 
-################################################################################
-# SO CATEGORIZATION FOR NMD TRANSCRIPTS                                        #
-################################################################################
+# ################################################################################
+# # SO CATEGORIZATION FOR NMD TRANSCRIPTS                                        #
+# ################################################################################
 
 nmd_dir="/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/conda_package_ribocov_test/NMD_genome"
 
@@ -54,9 +54,9 @@ python get_nr_ribocov_split_orfs_across_all_samples.py \
  --region_type NMD
 
 
-################################################################################
-# SO CATEGORIZATION FOR RI TRANSCRIPTS                                         #
-################################################################################
+# ################################################################################
+# # SO CATEGORIZATION FOR RI TRANSCRIPTS                                         #
+# ################################################################################
 
 ri_dir="/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/conda_package_ribocov_test/RI_genome"
 
@@ -154,6 +154,23 @@ python get_nr_ribocov_two_orfs_so_trans_across_all_samples.py \
  --nmd_inh_cat_csv "${ri_dir}/SO_coverage_categorization/RI_NMD_inhibition/so_categorization_two_orfs_cov_df_NMD_inhibition_RI.csv" \
  --cancer_cat_csv "${ri_dir}/SO_coverage_categorization/RI_cancer/so_categorization_two_orfs_cov_df_cancer_RI.csv" \
  --region_type RI
+
+
+# get percentages of ribo-cov URs for each categorization 
+# get the total number of SO transcripts per RI and NMD transcripts that have ribo-cov in 2 ORFS!!!
+ribo_cov_cat_dfs=(
+"${nmd_dir}/SO_coverage_categorization/NMD_HCT_control/so_categorization_df_HCT_control_NMD.csv"
+"${nmd_dir}/SO_coverage_categorization/NMD_NMD_inhibition/so_categorization_df_NMD_inhibition_NMD.csv"
+"${nmd_dir}/SO_coverage_categorization/NMD_cancer/so_categorization_df_cancer_NMD.csv"
+"${ri_dir}/SO_coverage_categorization/RI_HCT_control/so_categorization_df_HCT_control_RI.csv"
+"${ri_dir}/SO_coverage_categorization/RI_NMD_inhibition/so_categorization_df_NMD_inhibition_RI.csv"
+"${ri_dir}/SO_coverage_categorization/RI_cancer/so_categorization_df_cancer_RI.csv"
+)
+
+for cat_df in "${ribo_cov_cat_dfs[@]}"; do
+    python get_ribo_cov_percentage_for_categories.py \
+    --ribocov_cat_csv "$cat_df"
+done
 
 
 # gene union among NMD and RI that have ribo-cov in 2 ORFS!!!
