@@ -10,7 +10,7 @@ other annotated protein coding transcript.
 These unique regions can then, in a second step, be tested for significantly more Ribo-seq coverage than background regions.
 
 ## Conda package
-We are currently working on a bioconda package for the Split-ORF pipeline. The conda package can already be installed following the instructions below and will be made available via bioconda for easier installation within the next weeks (date: 18.05.2026).
+We are currently working on a bioconda package for the Split-ORF pipeline. The conda package can already be installed following the instructions below and will be made available via bioconda for easier installation within the next weeks (date: 14.08.2026).
 
 ## Installation 
 
@@ -148,6 +148,8 @@ Example Input files are supplied in the riboseq-validation folder, e.g. riboseq_
     "cds_coordinates": CDS coordinate BED file,
     "input_name": name to give the BAM files (NMD),
     "region_type": region type (NMD or RI),
+    "filter_tpm": integer: only consider CDSs, unique regions and 3' UTRs of genes that pass this TPM threshold,
+    "percentile_filter_3_primes": float: filter the 3' UTRs such for their expression falling below this quantile of the translated CDS distribution,
     "bam_ending": name of the bam file endings, when FASTQ files are used should be _input_name_sorted.bam
     otherwise the ending of the supplied BAM files e.g. "deduplicated.bam",
     "tmp_dir": TMP directory for intersection of large BED files,
@@ -166,7 +168,7 @@ The **three_primes** should contain the genomic coordinates of 3' UTR regions th
 
 The cds_coordinates are downloaded from Ensembl Biomart (v.110) and are the same as the ones used for the split-orf-prediction module, but without the contaminations.
 
-All Input and Output files can be downloaded from [Zenodo](https://zenodo.org/records/20340925).
+All Input and Output files can be downloaded from [Zenodo](https://doi.org/10.5281/zenodo.21900859).
 
 ## Output Files ribo-cov
 
@@ -180,7 +182,7 @@ In the Split-ORF pipeline paper we performed in depth analysis of the ribo-cov u
 Corresponding author: kalk@med.uni-frankfurt.de
 
 ## Citation
-Please cite our manuscripts on [bioRxiv](https://www.biorxiv.org/content/10.64898/2026.05.22.727176v1).
+Please cite our manuscripts on [bioRxiv](https://www.biorxiv.org/).
 
 
 ## License
