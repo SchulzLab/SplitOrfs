@@ -24,6 +24,7 @@ def parse_args():
 def main(ri_validated_rbp_file, nmd_validated_rbp_file):
     outdir = os.path.join(os.path.dirname(os.path.dirname(
         os.path.dirname(ri_validated_rbp_file))), 'rbpbase_nmd_ri')
+    print(outdir)
     os.makedirs(outdir, exist_ok=True)
 
     ri_validated_rbp_df = pd.read_csv(
@@ -57,8 +58,5 @@ if __name__ == '__main__':
 
     ri_validated_rbp_file = args.ri_validated_rbp_file
     nmd_validated_rbp_file = args.nmd_validated_rbp_file
-
-    nmd_validated_rbp_file = "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/NMD_genome/SO_coverage_categorization/rbpbase/interesting_candidates_ribocov_NMD_rbp_genes_rbpbase.txt"
-    ri_validated_rbp_file = "/projects/splitorfs/work/Riboseq/Output/Riboseq_genomic_single_samples/test_Ribo_val_conda/RI_genome/SO_coverage_categorization/rbpbase/interesting_candidates_ribocov_RI_rbp_genes_rbpbase.txt"
 
     main(ri_validated_rbp_file, nmd_validated_rbp_file)
